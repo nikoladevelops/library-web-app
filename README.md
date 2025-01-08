@@ -12,20 +12,20 @@ Currently In development..
 git clone https://github.com/nikoladevelops/library-web-app.git
 ```
 
-5. Open `LibraryWebApp.sln` in Visual Studio 2022
-6. Open `Package Manager Console`
+4. Open `LibraryWebApp.sln` in Visual Studio 2022
+5. Open `Package Manager Console`
 
 (Tools -> NuGet Package Manager -> Package Manager Console)
 
-8. Run this command inside the `Package Manager Console`:
+6. Run this command inside the `Package Manager Console`:
 ```
 dotnet restore
 ```
 (this will just download all NuGet packages locally, all those packages are mandatory since the project won't work without them)
 
-10. Create a brand new `.env` file inside the project - this is where all secrets/environment variables will be at (this file should never be uploaded to your remote, that's why the `.gitignore` already ignores it)
+7. Create a brand new `.env` file inside the project - this is where all secrets/environment variables will be at (this file should never be uploaded to your remote, that's why the `.gitignore` already ignores it)
 
-9. Open this brand new empty `.env` file that you just created and configure it with your own SQL Server connection string:
+8. Open this brand new empty `.env` file that you just created and configure it with your own SQL Server connection string:
 
 ```
 CONNECTION_STRING=connection_string_goes_here
@@ -40,14 +40,14 @@ CONNECTION_STRING=Server=.\SQLEXPRESS;Database=LibraryDB;Trusted_Connection=True
 ```
 
 
-11. If all packages have been installed and your connection string is correct (and also all necessary SQL Server services are running on your device) all that is left to do is to apply all migrations so that your database can be generated.
+9. If all packages have been installed and your connection string is correct (and also all necessary SQL Server services are running on your device) all that is left to do is to apply all migrations so that your database can be generated.
 This is done by running the following command inside the `Package Manager Console`:
 
 ```
 update-database
 ```
 
-13. Run the project and test it
+10. Run the project and test it
 
 
 ## How to change database tables / add new tables / change table attributes?
