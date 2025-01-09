@@ -4,6 +4,7 @@ using LibraryWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250109133819_CreatingBookRelatedTables")]
+    partial class CreatingBookRelatedTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,36 +24,6 @@ namespace LibraryWebApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("AuthorBook", b =>
-                {
-                    b.Property<int>("AuthorsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BooksId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AuthorsId", "BooksId");
-
-                    b.HasIndex("BooksId");
-
-                    b.ToTable("AuthorBook");
-                });
-
-            modelBuilder.Entity("BookGenre", b =>
-                {
-                    b.Property<int>("BooksId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GenresId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BooksId", "GenresId");
-
-                    b.HasIndex("GenresId");
-
-                    b.ToTable("BookGenre");
-                });
 
             modelBuilder.Entity("LibraryWebApp.Models.ApplicationUser", b =>
                 {
@@ -117,7 +90,7 @@ namespace LibraryWebApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("LibraryWebApp.Models.Author", b =>
+            modelBuilder.Entity("LibraryWebApp.Models.AuthorModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -125,16 +98,67 @@ namespace LibraryWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AuthorModelId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.HasIndex("AuthorModelId");
+
+                    b.ToTable("AuthorModels");
                 });
 
-            modelBuilder.Entity("LibraryWebApp.Models.Book", b =>
+            modelBuilder.Entity("LibraryWebApp.Models.BookAuthors", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("BookAuthors");
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.BookGenres", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GenreId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("GenreId");
+
+                    b.ToTable("BookGenres");
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.BookModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -157,24 +181,24 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("BookModels");
                 });
 
-            modelBuilder.Entity("LibraryWebApp.Models.Genre", b =>
+            modelBuilder.Entity("LibraryWebApp.Models.GenreModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("GenreId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GenreId"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("GenreId");
 
-                    b.ToTable("Genres");
+                    b.ToTable("GenreModels");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -310,34 +334,49 @@ namespace LibraryWebApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AuthorBook", b =>
+            modelBuilder.Entity("LibraryWebApp.Models.AuthorModel", b =>
                 {
-                    b.HasOne("LibraryWebApp.Models.Author", null)
-                        .WithMany()
-                        .HasForeignKey("AuthorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LibraryWebApp.Models.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("LibraryWebApp.Models.AuthorModel", null)
+                        .WithMany("BookAuthors")
+                        .HasForeignKey("AuthorModelId");
                 });
 
-            modelBuilder.Entity("BookGenre", b =>
+            modelBuilder.Entity("LibraryWebApp.Models.BookAuthors", b =>
                 {
-                    b.HasOne("LibraryWebApp.Models.Book", null)
+                    b.HasOne("LibraryWebApp.Models.AuthorModel", "Author")
                         .WithMany()
-                        .HasForeignKey("BooksId")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LibraryWebApp.Models.Genre", null)
-                        .WithMany()
-                        .HasForeignKey("GenresId")
+                    b.HasOne("LibraryWebApp.Models.BookModel", "Book")
+                        .WithMany("BookAuthors")
+                        .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.BookGenres", b =>
+                {
+                    b.HasOne("LibraryWebApp.Models.BookModel", "Book")
+                        .WithMany("BookGenres")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LibraryWebApp.Models.GenreModel", "Genre")
+                        .WithMany("BookGenres")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Genre");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -389,6 +428,23 @@ namespace LibraryWebApp.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.AuthorModel", b =>
+                {
+                    b.Navigation("BookAuthors");
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.BookModel", b =>
+                {
+                    b.Navigation("BookAuthors");
+
+                    b.Navigation("BookGenres");
+                });
+
+            modelBuilder.Entity("LibraryWebApp.Models.GenreModel", b =>
+                {
+                    b.Navigation("BookGenres");
                 });
 #pragma warning restore 612, 618
         }
