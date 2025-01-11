@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Book>
+
+@{
+    ViewData["Title"] = "Library Catalogue";
+}
+
+<h1>Catalogue</h1>
+
+<p>
+    <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add Book</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label class="control-label">Title</label>
+            </th>
+            <th>
+                <label class="control-label">Publication Date<br />(Month/Day/Year)</label>
+            </th>
+            <th>
+                <label class="control-label">Available Count</label>
+            </th>
+            <th>
+                <label class="control-label">Total Count</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>
+                    @book.Title
+                </td>
+                <td>
+                    @book.PublicationDate.ToString("MM/dd/yyyy")
+                </td>
+                <td>
+                    @book.AvailableCount
+                </td>
+                <td>
+                    @book.TotalCount
+                </td>
+                <td>
+                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
+                    <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

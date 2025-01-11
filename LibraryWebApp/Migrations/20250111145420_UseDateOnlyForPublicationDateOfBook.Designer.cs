@@ -4,6 +4,7 @@ using LibraryWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250111145420_UseDateOnlyForPublicationDateOfBook")]
+    partial class UseDateOnlyForPublicationDateOfBook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("BooksId");
 
-                    b.ToTable("AuthorBook", (string)null);
+                    b.ToTable("AuthorBook");
                 });
 
             modelBuilder.Entity("BookGenre", b =>
@@ -49,7 +52,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("GenresId");
 
-                    b.ToTable("BookGenre", (string)null);
+                    b.ToTable("BookGenre");
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.ApplicationUser", b =>
@@ -131,7 +134,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors", (string)null);
+                    b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Book", b =>
@@ -157,7 +160,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Genre", b =>
@@ -174,7 +177,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres", (string)null);
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
