@@ -18,9 +18,10 @@ namespace LibraryWebApp.Models
 
         // TODO add book cover image support
 
-        public ICollection<Genre> Genres { get; set; }
-
-        public ICollection<Author> Authors { get; set; }
+        public ICollection<Genre>? Genres { get; set; }
+        // Made them nullable for the time being so i can add books to the database
+        // Fix this in the future 
+        public ICollection<Author>? Authors { get; set; }
 
     }
 }
