@@ -30,6 +30,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // Build the app
 var app = builder.Build();
 
+// Use status code pages for errors / missing pages -> this is a temporary solution TODO: implement a custom error page and remove this code here
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

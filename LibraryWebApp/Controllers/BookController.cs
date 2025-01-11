@@ -10,22 +10,21 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryWebApp.Controllers
 {
-    public class BooksController : Controller
+    public class BookController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public BooksController(ApplicationDbContext context)
+        public BookController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Books
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Books.ToListAsync());
+            List<Book> allBooks = await _context.Books.ToListAsync();
+            return View(allBooks);
         }
 
-        // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +33,8 @@ namespace LibraryWebApp.Controllers
             }
 
             var book = await _context.Books
-                .FirstOrDefaultAsync(b => b.Id == id);
+                .FindAsync(id);
+
             if (book == null)
             {
                 return NotFound();
@@ -43,18 +43,17 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // GET: Books/Create
-        // TO DO Make it accessible to Admins only
+        // TODO Make it accessible to Admins only
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
-        // TO DO Make it accessible to Admins only
+        
+        // TODO Make it accessible to Admins only
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,PublicationDate,AvailableCount,TotalCount")] Book book)
+        public async Task<IActionResult> Create(Book book) // TODO should probrably switch to using ViewModels
         {
             if (ModelState.IsValid)
             {
@@ -65,8 +64,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // GET: Books/Edit/5
-        // TO DO Make it accessible to Admins only
+        // TODO Make it accessible to Admins only
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -82,42 +80,22 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // POST: Books/Edit/5
-        // TO DO Make it accessible to Admins only
+        // TODO Make it accessible to Admins only
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,PublicationDate,AvailableCount,TotalCount")] Book book)
+        public async Task<IActionResult> Edit(Book book)
         {
-            if (id != book.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookExists(book.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(book);
+                await _context.SaveChangesAsync();
+               
                 return RedirectToAction(nameof(Index));
             }
             return View(book);
         }
 
-        // GET: Books/Delete/5
-        // TO DO Make it accessible to Admins only
+        // TODO Make it accessible to Admins only
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -126,7 +104,8 @@ namespace LibraryWebApp.Controllers
             }
 
             var book = await _context.Books
-                .FirstOrDefaultAsync(b => b.Id == id);
+                .FindAsync(id);
+
             if (book == null)
             {
                 return NotFound();
@@ -135,11 +114,10 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // POST: Books/Delete/5
-        // TO DO Make it accessible to Admins only
+        // TODO Make it accessible to Admins only
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeletePOST(int id)
         {
             var book = await _context.Books.FindAsync(id);
             if (book != null)
