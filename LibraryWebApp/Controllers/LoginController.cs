@@ -53,7 +53,6 @@ namespace LibraryWebApp.Controllers
                     Email = registerViewModel.Email
                 };
                 await userManager.CreateAsync(user, registerViewModel.Password);
-                //redirect to book panel here
                 return RedirectToAction(nameof(Index));
             }
         return View();
