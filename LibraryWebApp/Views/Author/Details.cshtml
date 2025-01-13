@@ -1,15 +1,20 @@
-﻿@model IEnumerable<Book>
+﻿@model (LibraryWebApp.Models.Author Author, List<LibraryWebApp.Models.Book> Books)
 
 @{
-    ViewData["Title"] = "Library Catalogue";
+    ViewData["Title"] = "Details";
 }
 
-<h1>Catalogue</h1>
+<h1>Author</h1>
 
-<p>
-    <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add Book</a>
-</p>
-
+<div>
+    <h4>@Model.Author.Name</h4>
+    <hr/>
+</div>
+<div>
+    <h4>Written Books</h4>
+    <hr/>
+</div>
+<div style="width: 75vw; margin:auto; ">
 <table class="table">
     <thead>
         <tr>
@@ -29,7 +34,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var book in Model)
+        @foreach (var book in Model.Books)
         {
             <tr>
                 <td>
@@ -45,11 +50,14 @@
                     @book.TotalCount
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
-                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
-                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
+                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
+                    <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+</div>
+<a asp-action="Edit" asp-route-id="@Model.Author?.Id">Edit</a> |
+<a asp-action="Index">Back to List</a>
