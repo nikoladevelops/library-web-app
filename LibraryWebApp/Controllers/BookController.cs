@@ -55,8 +55,11 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Book book) // TODO should probrably switch to using ViewModels
         {
+            ValidatePublicationDate(book.PublicationDate);
+
             if (ModelState.IsValid)
             {
+                book.AvailableCount = book.TotalCount;
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -85,6 +88,8 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Book book)
         {
+            ValidatePublicationDate(book.PublicationDate);
+
             if (ModelState.IsValid)
             {
                 _context.Update(book);
@@ -129,9 +134,12 @@ namespace LibraryWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BookExists(int id)
+        private void ValidatePublicationDate(DateOnly publicationDate) 
         {
-            return _context.Books.Any(b => b.Id == id);
+            if (publicationDate > DateOnly.FromDateTime(DateTime.Today))
+            {
+                ModelState.AddModelError("PublicationDate", "The publication date cannot be in the future.");
+            }
         }
     }
 }

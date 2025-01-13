@@ -8,7 +8,7 @@ namespace LibraryWebApp.Models
     {
         [Key]
         public int Id { get; set; }
-
+        [RegularExpression(@"^[^\/\\:\*\<>\|]+$", ErrorMessage = "The Title contains invalid characters.")]
         public string Title { get; set; }
 
         [DisplayName("Publication Date")]
