@@ -20,7 +20,8 @@ namespace LibraryWebApp.Models
         [DisplayName("Total Count")]
         public int TotalCount { get; set; }
 
-        // TODO add book cover image support
+        [DisplayName("Cover Image")]
+        public string? CoverImageUrl { get; set; }
 
         public ICollection<Genre>? Genres { get; set; }
         

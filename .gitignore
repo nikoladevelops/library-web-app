@@ -364,3 +364,9 @@ FodyWeavers.xsd
 
 # Ignore .env files since they contain secrets
 *.env
+
+# Ignore everything in the bookCoverImages folder
+/LibraryWebApp/wwwroot/images/bookCoverImages/*
+
+# Only thing that should be allowed is the specific file no_cover.jpg, which is the default image when a book has no cover
+!/LibraryWebApp/wwwroot/images/bookCoverImages/no_cover.jpg
