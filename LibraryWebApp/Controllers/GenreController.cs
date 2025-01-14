@@ -19,13 +19,11 @@ namespace LibraryWebApp.Controllers
             _context = context;
         }
 
-        // GET: Genres
         public async Task<IActionResult> Index()
         {
             return View(await _context.Genres.ToListAsync());
         }
 
-        // GET: Genres/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -42,13 +40,11 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        // GET: Genres/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Genres/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(GenreCreateViewModel genre)
@@ -62,7 +58,6 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        // GET: Genres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,7 +73,6 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        // POST: Genres/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Genre genre)
@@ -98,7 +92,6 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        // GET: Genres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -116,10 +109,9 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeletePOST(int id)
         {
             var genre = await _context.Genres.FindAsync(id);
             if (genre != null)
@@ -129,11 +121,6 @@ namespace LibraryWebApp.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool GenreExists(int id)
-        {
-            return _context.Genres.Any(e => e.Id == id);
         }
     }
 }
