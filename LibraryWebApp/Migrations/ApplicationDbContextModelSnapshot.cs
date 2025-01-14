@@ -34,7 +34,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("BooksId");
 
-                    b.ToTable("AuthorBook");
+                    b.ToTable("AuthorBook", (string)null);
                 });
 
             modelBuilder.Entity("BookGenre", b =>
@@ -49,7 +49,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("GenresId");
 
-                    b.ToTable("BookGenre");
+                    b.ToTable("BookGenre", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.ApplicationUser", b =>
@@ -115,40 +115,6 @@ namespace LibraryWebApp.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "11",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "effbbb34-17fc-4aa0-934e-ecea203cb08a",
-                            Email = "adminSeed@ex.com",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMINSEED@EX.BG",
-                            NormalizedUserName = "ADMINSEED",
-                            PasswordHash = "AQAAAAIAAYagAAAAEF2PRDX6Lo2OR0eYoq1G2TDmt0E7vk/eNtBkhOEHovkb080+kdIeN4mbpM4zCOAWCQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "ce360bee-8c4f-4571-bc9c-a66fbef7fb6c",
-                            TwoFactorEnabled = false,
-                            UserName = "adminSeed"
-                        },
-                        new
-                        {
-                            Id = "22",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "be739322-efd9-4c51-9524-a805c2fdcc5c",
-                            Email = "userSeed@ex.bg",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "USERSEED@EX.BG",
-                            NormalizedUserName = "USERSEED",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDksjNhk3Oe5ZOG8Ua8P3QM3xt/O7BPszNyr8I56y9VOW9d/+c6E2dFK/dpCqXiyDA==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "b14d59c6-e39d-4e20-be3b-7c2650d1e8c4",
-                            TwoFactorEnabled = false,
-                            UserName = "userSeed"
-                        });
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Author", b =>
@@ -165,7 +131,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Book", b =>
@@ -194,7 +160,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Genre", b =>
@@ -211,7 +177,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -239,20 +205,6 @@ namespace LibraryWebApp.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -340,18 +292,6 @@ namespace LibraryWebApp.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "11",
-                            RoleId = "1"
-                        },
-                        new
-                        {
-                            UserId = "22",
-                            RoleId = "2"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

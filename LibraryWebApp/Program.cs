@@ -59,53 +59,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-await SeedRolesAndUsersAsync(app.Services);
+
+
+DataSeeder seeder = new DataSeeder();
+
+await seeder.SeedRoles(app.Services);
+await seeder.SeedUsers(app.Services);
+
 app.Run();
 
-async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
-{
-    using var scope = serviceProvider.CreateScope();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-    string[] roles = { "Admin", "User" };
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-
-    var adminEmail = "admin@example.com";
-    var adminPassword = "Admin123!";
-    if (await userManager.FindByEmailAsync(adminEmail) == null)
-    {
-        var adminUser = new ApplicationUser
-        {
-            UserName = "adminSeed",
-            Email = "adminSeed@ex.com",
-        };
-        var createAdminResult = await userManager.CreateAsync(adminUser, adminPassword);
-        if (createAdminResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-    }
-
-    var userEmail = "userSeed@ex.bg";
-    var userPassword = "User123!";
-    if (await userManager.FindByEmailAsync(userEmail) == null)
-    {
-        var normalUser = new ApplicationUser
-        {
-            UserName = "userSeed",
-            Email = "userSeed@ex.bg",
-        };
-        var createUserResult = await userManager.CreateAsync(normalUser, userPassword);
-        if (createUserResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(normalUser, "User");
-        }
-    }
-}
