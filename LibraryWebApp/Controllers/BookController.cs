@@ -45,7 +45,7 @@ namespace LibraryWebApp.Controllers
             // TODO should use viewmodels instead
             ViewData["NoBookCoverImage"] = _bookCoverImageManager.DefaultNoBookCoverImagePath;
 
-
+            Console.WriteLine(book.CoverImageUrl == null);
             return View(book);
         }
 
@@ -97,23 +97,35 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Book book, IFormFile? coverImage)
         {
+            var bookInDb = await _context.Books.FindAsync(book.Id);
+
+            if (bookInDb == null)
+            {
+                return NotFound();
+            }
+            
+
             ValidatePublicationDate(book.PublicationDate);
 
             if (ModelState.IsValid)
             {
-                // If the book had a cover image before, delete the old one
-                if (book.CoverImageUrl != null) 
+                // If the book had a cover image already saved in the database, delete it
+                if (bookInDb.CoverImageUrl != null) 
                 {
-                    _bookCoverImageManager.DeleteBookCoverImage(book.CoverImageUrl);
+                    // Deletes the actual file
+                    _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
                 }
 
-                await SaveBookCoverImage(book, coverImage);
+                // Now book has no bookInDbCoverImageUrl which is good.
 
-                _context.Update(book);
+                _context.Entry(bookInDb).CurrentValues.SetValues(book); // This also copied the old book cover image url
+
+                await SaveBookCoverImage(bookInDb, coverImage);
                 await _context.SaveChangesAsync();
                
                 return RedirectToAction(nameof(Index));
             }
+
             return View(book);
         }
 
@@ -168,19 +180,23 @@ namespace LibraryWebApp.Controllers
         }
 
         /// <summary>
-        /// Saves the book cover image to the disk and sets the book's CoverImageUrl property, but only if an actual cover image was provided (if it's not null)
+        /// Saves the book cover image to the disk if it was provided. Also sets the book's CoverImageUrl property to be consistent with that (either to null or to the actual book cover image url).
         /// </summary>
         /// <param name="book"></param>
         /// <param name="coverImage"></param>
         /// <returns></returns>
         private async Task SaveBookCoverImage(Book book, IFormFile? coverImage) 
         {
-            // If a new book cover image was provided, then save it
-            if (coverImage != null)
+            // If no cover image was actually passed, that means the book should also be consistent with that
+            if (coverImage == null)
             {
-                string filePath = await _bookCoverImageManager.SaveBookCoverImageToDiskAsync(coverImage);
-                book.CoverImageUrl = filePath;
+                book.CoverImageUrl = null; // Important to ensure that the book has no cover image url if coverImage is null
+                return;
             }
+
+            // If a new book cover image was provided, then save it
+            string filePath = await _bookCoverImageManager.SaveBookCoverImageToDiskAsync(coverImage);
+            book.CoverImageUrl = filePath;
         }
     }
 }

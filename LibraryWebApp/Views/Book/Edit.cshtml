@@ -13,6 +13,8 @@
         <form asp-controller="Book" asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CoverImageUrl" class="form-control"/>
+
             <div class="form-group">
                 <label class="control-label"></label>
                 <input type="file" name="coverImage" class="form-control" />
