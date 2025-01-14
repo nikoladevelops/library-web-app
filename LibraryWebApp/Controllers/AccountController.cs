@@ -72,6 +72,7 @@ namespace LibraryWebApp.Controllers
                 };
 
                 var result = await userManager.CreateAsync(user, registerViewModel.Password);
+                await userManager.AddToRoleAsync(user, "User");
 
                 if (result.Succeeded)
                 {

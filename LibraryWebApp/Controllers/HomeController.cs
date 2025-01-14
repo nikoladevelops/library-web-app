@@ -1,4 +1,5 @@
 using LibraryWebApp.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,14 +8,29 @@ namespace LibraryWebApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        
-        public HomeController(ILogger<HomeController> logger)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
         {
+            _userManager = userManager;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var user = await _userManager.GetUserAsync(User);
+
+
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                ViewData["UserRoles"] = roles[0];
+            }
+            else
+            {
+                ViewData["UserRoles"] = "Guest"; 
+            }
             return View();
         }
 

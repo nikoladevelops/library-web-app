@@ -1,7 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
+@{
+    var userRole = ViewData["UserRoles"] as string;
+}
 <div class="text-center">
     <h1 class="display-4">Welcome @User.Identity.Name</h1>
+    @if (@User.Identity.IsAuthenticated)
+    {
+    <h2> logged in as @userRole</h2>
+    }
 </div>
