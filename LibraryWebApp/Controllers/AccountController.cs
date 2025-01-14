@@ -48,20 +48,47 @@ namespace LibraryWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check if there is already a user with this username
+                var existingUserByUsername = await userManager.FindByNameAsync(registerViewModel.Username);
+                if (existingUserByUsername != null)
+                {
+                    ModelState.AddModelError("Username", "A user with this username already exists.");
+                    return View(registerViewModel);
+                }
+
+                // Check if there is already a user with this email
+                var existingUserByEmail = await userManager.FindByEmailAsync(registerViewModel.Email);
+                if (existingUserByEmail != null)
+                {
+                    ModelState.AddModelError("Email", "A user with this email address already exists.");
+                    return View(registerViewModel);
+                }
+
+                // Create a new user
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = registerViewModel.Username,
                     Email = registerViewModel.Email
                 };
 
-                await userManager.CreateAsync(user, registerViewModel.Password);
-                await signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
+                var result = await userManager.CreateAsync(user, registerViewModel.Password);
 
-                return RedirectToAction("Index", "Home");
+                if (result.Succeeded)
+                {
+                    await signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Add errors to ModelState if user creation failed
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
 
-            return View();
+            return View(registerViewModel);
         }
+
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
