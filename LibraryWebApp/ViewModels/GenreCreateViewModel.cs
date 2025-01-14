@@ -1,4 +1,4 @@
-﻿namespace LibraryWebApp.ViewsModels
+﻿namespace LibraryWebApp.ViewModels
 {
     public class GenreCreateViewModel
     {

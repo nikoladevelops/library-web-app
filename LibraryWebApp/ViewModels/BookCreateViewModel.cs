@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace LibraryWebApp.ViewsModels
+namespace LibraryWebApp.ViewModels
 {
     public class BookCreateViewModel
     {

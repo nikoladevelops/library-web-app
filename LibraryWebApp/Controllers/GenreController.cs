@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
-using LibraryWebApp.ViewsModels;
+using LibraryWebApp.ViewModels;
 
 namespace LibraryWebApp.Controllers
 {

@@ -1,3 +1,4 @@
+using LibraryWebApp.Helpers;
 using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add Identity support + tables
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Add this utility class as a singleton, so that it can be used in the controllers as a helper class
+builder.Services.AddSingleton<IBookCoverImageManager, BookCoverImageManager>();
 
 
 // Build the app
