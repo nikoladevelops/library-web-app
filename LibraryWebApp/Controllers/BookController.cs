@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
+using LibraryWebApp.ViewModels;
 using LibraryWebApp.Helpers;
 
 namespace LibraryWebApp.Controllers
@@ -34,8 +35,7 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .FindAsync(id);
+            var book = await _context.Books.FindAsync(id);
 
             if (book == null)
             {
@@ -136,8 +136,7 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .FindAsync(id);
+            var book = await _context.Books.FindAsync(id);
 
             if (book == null)
             {
