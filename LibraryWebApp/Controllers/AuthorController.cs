@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
+using LibraryWebApp.ViewModels;
 
 namespace LibraryWebApp.Controllers
 {
@@ -32,17 +33,20 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
                 return NotFound();
             }
             List<Book>? list = _context.Books.Where(b => b.Authors.Contains(author)).ToList();
-            (Author Author, List<Book> ListOfBooks) tuple = (author, list);
 
+            AuthorDetailsViewModel model = new AuthorDetailsViewModel
+            {
+                Author = author,
+                Books = list
+            };
 
-            return View(tuple);
+            return View(model);
         }
 
         // GET: Author/Create
@@ -54,11 +58,11 @@ namespace LibraryWebApp.Controllers
         // POST: Author/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Create(AuthorCreateViewModel author)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(author);
+                _context.Add(new Author { Id = author.Id, Name = author.Name });
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -84,31 +88,18 @@ namespace LibraryWebApp.Controllers
         // POST: Author/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Author author)
+        public async Task<IActionResult> Edit(Author author)
         {
-            if (id != author.Id)
+            if (author == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(author);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AuthorExists(author.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(author);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(author);
@@ -122,8 +113,7 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
                 return NotFound();

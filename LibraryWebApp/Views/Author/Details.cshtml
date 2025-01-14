@@ -1,20 +1,17 @@
-﻿@model (LibraryWebApp.Models.Author Author, List<LibraryWebApp.Models.Book> Books)
+﻿@model LibraryWebApp.ViewModels.AuthorDetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Author</h1>
+<h1>@Model.Author.Name</h1>
 
-<div>
-    <h4>@Model.Author.Name</h4>
     <hr/>
-</div>
 <div>
     <h4>Written Books</h4>
     <hr/>
 </div>
-<div style="width: 75vw; margin:auto; ">
+<div>
 <table class="table">
     <thead>
         <tr>
@@ -59,5 +56,5 @@
     </tbody>
 </table>
 </div>
-<a asp-action="Edit" asp-route-id="@Model.Author?.Id">Edit</a> |
-<a asp-action="Index">Back to List</a>
+<a asp-controller="Author" asp-action="Edit" asp-route-id="@Model.Author?.Id">Edit</a> |
+<a asp-controller="Author" asp-action="Index">Back to List</a>

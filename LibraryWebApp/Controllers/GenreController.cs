@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
+using LibraryWebApp.ViewsModels;
 
 namespace LibraryWebApp.Controllers
 {
@@ -32,8 +33,7 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
                 return NotFound();
@@ -51,11 +51,11 @@ namespace LibraryWebApp.Controllers
         // POST: Genres/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Genre genre)
+        public async Task<IActionResult> Create(GenreCreateViewModel genre)
         {
             if (ModelState.IsValid)
-            {           
-                _context.Add(genre);
+            {
+                _context.Add(new Genre { Id = genre.Id, Name = genre.Name });
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -81,31 +81,18 @@ namespace LibraryWebApp.Controllers
         // POST: Genres/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Genre genre)
+        public async Task<IActionResult> Edit(Genre genre)
         {
-            if (id != genre.Id)
+            if (genre == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(genre);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GenreExists(genre.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(genre);
+                await _context.SaveChangesAsync();
+                
                 return RedirectToAction(nameof(Index));
             }
             return View(genre);
@@ -120,7 +107,7 @@ namespace LibraryWebApp.Controllers
             }
 
             var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FindAsync(id);
             if (genre == null)
             {
                 return NotFound();
