@@ -34,7 +34,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("BooksId");
 
-                    b.ToTable("AuthorBook");
+                    b.ToTable("AuthorBook", (string)null);
                 });
 
             modelBuilder.Entity("BookGenre", b =>
@@ -49,7 +49,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasIndex("GenresId");
 
-                    b.ToTable("BookGenre");
+                    b.ToTable("BookGenre", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.ApplicationUser", b =>
@@ -131,7 +131,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Book", b =>
@@ -160,7 +160,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("LibraryWebApp.Models.Genre", b =>
@@ -177,7 +177,7 @@ namespace LibraryWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

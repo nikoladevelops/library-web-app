@@ -60,4 +60,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+DataSeeder seeder = new DataSeeder();
+
+await seeder.SeedRoles(app.Services);
+await seeder.SeedUsers(app.Services);
+
 app.Run();
+
