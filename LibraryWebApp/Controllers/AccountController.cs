@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryWebApp.Controllers
 {
-    public class LoginController : Controller
+    public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
-        public LoginController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um)
+        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um)
         {
             signInManager = signIn;
             userManager = um;
@@ -21,6 +21,7 @@ namespace LibraryWebApp.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -52,10 +53,14 @@ namespace LibraryWebApp.Controllers
                     UserName = registerViewModel.Username,
                     Email = registerViewModel.Email
                 };
+
                 await userManager.CreateAsync(user, registerViewModel.Password);
-                return RedirectToAction(nameof(Index));
+                await signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
+
+                return RedirectToAction("Index", "Home");
             }
-        return View();
+
+            return View();
         }
         public async Task<IActionResult> Logout()
         {
