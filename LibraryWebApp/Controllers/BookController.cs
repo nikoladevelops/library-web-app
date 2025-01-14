@@ -45,7 +45,6 @@ namespace LibraryWebApp.Controllers
             // TODO should use viewmodels instead
             ViewData["NoBookCoverImage"] = _bookCoverImageManager.DefaultNoBookCoverImagePath;
 
-            Console.WriteLine(book.CoverImageUrl == null);
             return View(book);
         }
 
