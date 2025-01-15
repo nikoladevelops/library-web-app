@@ -7,7 +7,10 @@
 <h1>Catalogue</h1>
 
 <p>
-    <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add Book</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add Book</a>
+    }
 </p>
 
 <table class="table">
@@ -45,9 +48,12 @@
                     @book.TotalCount
                 </td>
                 <td>
-                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
-                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
-                    <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
+                        <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
+                    }
                 </td>
             </tr>
         }

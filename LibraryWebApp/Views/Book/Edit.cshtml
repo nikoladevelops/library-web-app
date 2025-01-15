@@ -13,7 +13,7 @@
         <form asp-controller="Book" asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CoverImageUrl" class="form-control"/>
+            <input type="hidden" asp-for="CoverImageUrl" class="form-control" />
 
             <div class="form-group">
                 <label class="control-label"></label>
@@ -26,7 +26,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PublicationDate" class="control-label"></label>
-                <input asp-for="PublicationDate" class="form-control" type="date"/>
+                <input asp-for="PublicationDate" class="form-control" type="date" />
                 <span asp-validation-for="PublicationDate" class="text-danger"></span>
             </div>
             <div class="form-group">

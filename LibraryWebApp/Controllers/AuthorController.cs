@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryWebApp.Controllers
 {
@@ -47,6 +48,7 @@ namespace LibraryWebApp.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -54,6 +56,8 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Create(AuthorCreateViewModel author)
         {
             if (ModelState.IsValid)
@@ -65,6 +69,7 @@ namespace LibraryWebApp.Controllers
             return View(author);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -82,6 +87,7 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Author author)
         {
             if (author == null)
@@ -99,6 +105,7 @@ namespace LibraryWebApp.Controllers
             return View(author);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -117,6 +124,7 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePOST(int id)
         {
             var author = await _context.Authors.FindAsync(id);

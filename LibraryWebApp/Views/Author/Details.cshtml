@@ -6,55 +6,58 @@
 
 <h1>@Model.Author.Name</h1>
 
-    <hr/>
+<hr />
 <div>
     <h4>Written Books</h4>
-    <hr/>
+    <hr />
 </div>
 <div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <label class="control-label">Title</label>
-            </th>
-            <th>
-                <label class="control-label">Publication Date<br />(Month/Day/Year)</label>
-            </th>
-            <th>
-                <label class="control-label">Available Count</label>
-            </th>
-            <th>
-                <label class="control-label">Total Count</label>
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var book in Model.Books)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @book.Title
-                </td>
-                <td>
-                    @book.PublicationDate.ToString("MM/dd/yyyy")
-                </td>
-                <td>
-                    @book.AvailableCount
-                </td>
-                <td>
-                    @book.TotalCount
-                </td>
-                <td>
-                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
-                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
-                    <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
-                </td>
+                <th>
+                    <label class="control-label">Title</label>
+                </th>
+                <th>
+                    <label class="control-label">Publication Date<br />(Month/Day/Year)</label>
+                </th>
+                <th>
+                    <label class="control-label">Available Count</label>
+                </th>
+                <th>
+                    <label class="control-label">Total Count</label>
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var book in Model.Books)
+            {
+                <tr>
+                    <td>
+                        @book.Title
+                    </td>
+                    <td>
+                        @book.PublicationDate.ToString("MM/dd/yyyy")
+                    </td>
+                    <td>
+                        @book.AvailableCount
+                    </td>
+                    <td>
+                        @book.TotalCount
+                    </td>
+                    <td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
+                            <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <a asp-controller="Author" asp-action="Edit" asp-route-id="@Model.Author?.Id">Edit</a> |
 <a asp-controller="Author" asp-action="Index">Back to List</a>

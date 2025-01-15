@@ -48,14 +48,13 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Book book, IFormFile? coverImage) // TODO should probably switch to using ViewModels
@@ -74,7 +73,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -91,7 +90,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Book book, IFormFile? coverImage)
@@ -102,14 +101,14 @@ namespace LibraryWebApp.Controllers
             {
                 return NotFound();
             }
-            
+
 
             ValidatePublicationDate(book.PublicationDate);
 
             if (ModelState.IsValid)
             {
                 // If the book had a cover image already saved in the database, delete it
-                if (bookInDb.CoverImageUrl != null) 
+                if (bookInDb.CoverImageUrl != null)
                 {
                     // Deletes the actual file
                     _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
@@ -121,14 +120,14 @@ namespace LibraryWebApp.Controllers
 
                 await SaveBookCoverImage(bookInDb, coverImage);
                 await _context.SaveChangesAsync();
-               
+
                 return RedirectToAction(nameof(Index));
             }
 
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -149,7 +148,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)
@@ -169,7 +168,7 @@ namespace LibraryWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private void ValidatePublicationDate(DateOnly publicationDate) 
+        private void ValidatePublicationDate(DateOnly publicationDate)
         {
             if (publicationDate > DateOnly.FromDateTime(DateTime.Today))
             {
@@ -183,7 +182,7 @@ namespace LibraryWebApp.Controllers
         /// <param name="book"></param>
         /// <param name="coverImage"></param>
         /// <returns></returns>
-        private async Task SaveBookCoverImage(Book book, IFormFile? coverImage) 
+        private async Task SaveBookCoverImage(Book book, IFormFile? coverImage)
         {
             // If no cover image was actually passed, that means the book should also be consistent with that
             if (coverImage == null)
