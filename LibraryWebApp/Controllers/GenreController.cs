@@ -20,6 +20,7 @@ namespace LibraryWebApp.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Genres.ToListAsync());
@@ -47,9 +48,9 @@ namespace LibraryWebApp.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(GenreCreateViewModel genre)
         {
             if (ModelState.IsValid)
@@ -77,9 +78,9 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Genre genre)
         {
             if (genre == null)
@@ -115,9 +116,9 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePOST(int id)
         {
             var genre = await _context.Genres.FindAsync(id);

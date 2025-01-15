@@ -22,6 +22,7 @@ namespace LibraryWebApp.Controllers
             _bookCoverImageManager = imageSaver;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             List<Book> allBooks = await _context.Books.ToListAsync();

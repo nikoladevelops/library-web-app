@@ -47,12 +47,9 @@
                         @book.TotalCount
                     </td>
                     <td>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
-                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
-                            <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
-                        }
+                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
+                        <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
                     </td>
                 </tr>
             }

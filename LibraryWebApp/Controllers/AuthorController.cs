@@ -19,6 +19,8 @@ namespace LibraryWebApp.Controllers
         {
             _context = context;
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Authors.ToListAsync());
@@ -54,10 +56,9 @@ namespace LibraryWebApp.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-
         public async Task<IActionResult> Create(AuthorCreateViewModel author)
         {
             if (ModelState.IsValid)
@@ -85,9 +86,9 @@ namespace LibraryWebApp.Controllers
             return View(author);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Author author)
         {
             if (author == null)
@@ -122,9 +123,9 @@ namespace LibraryWebApp.Controllers
             return View(author);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePOST(int id)
         {
             var author = await _context.Authors.FindAsync(id);
