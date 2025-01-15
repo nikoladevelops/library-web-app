@@ -19,5 +19,7 @@ namespace LibraryWebApp.ViewModels
 
         [DisplayName("Total Count")]
         public int TotalCount { get; set; }
+        public List<int> Authors { get; set; }
+        public List<int> Genres { get; set; }
     }
 }

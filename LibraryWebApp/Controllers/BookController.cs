@@ -9,6 +9,7 @@ using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using LibraryWebApp.ViewModels;
 using LibraryWebApp.Helpers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LibraryWebApp.Controllers
 {
@@ -51,23 +52,50 @@ namespace LibraryWebApp.Controllers
         // TODO Make it accessible to Admins only
         public IActionResult Create()
         {
+            ViewData["AuthorsAndGenres"] = new GenresAuthorsViewModel
+            {
+                Authors = _context.Authors.Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                }).ToList(),
+
+                Genres = _context.Genres.Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                }).ToList(),
+            };
             return View();
         }
 
-        
+
         // TODO Make it accessible to Admins only
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Book book, IFormFile? coverImage) // TODO should probably switch to using ViewModels
+        public async Task<IActionResult> Create(Book book, IFormFile? coverImage, List<int> Authors, List<int> Genres) // TODO should probably switch to using ViewModels
         {
             ValidatePublicationDate(book.PublicationDate);
 
             if (ModelState.IsValid)
             {
                 await SaveBookCoverImage(book, coverImage);
-
+                book.Authors = _context.Authors.Where(a => Authors.Contains(a.Id)).ToList();
+                book.Genres = _context.Genres.Where(a => Authors.Contains(a.Id)).ToList();
                 book.AvailableCount = book.TotalCount;
                 _context.Add(book);
+                foreach (var id in Authors)
+                {
+                    Author author = await _context.Authors.FindAsync(id);
+                    author.Books.Add(book);
+                    _context.Update(author);
+                }
+                foreach (var id in Genres)
+                {
+                    Genre genre = await _context.Genres.FindAsync(id);
+                    genre.Books.Add(book);
+                    _context.Update(genre);
+                }
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -102,14 +130,14 @@ namespace LibraryWebApp.Controllers
             {
                 return NotFound();
             }
-            
+
 
             ValidatePublicationDate(book.PublicationDate);
 
             if (ModelState.IsValid)
             {
                 // If the book had a cover image already saved in the database, delete it
-                if (bookInDb.CoverImageUrl != null) 
+                if (bookInDb.CoverImageUrl != null)
                 {
                     // Deletes the actual file
                     _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
@@ -121,7 +149,7 @@ namespace LibraryWebApp.Controllers
 
                 await SaveBookCoverImage(bookInDb, coverImage);
                 await _context.SaveChangesAsync();
-               
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -169,7 +197,7 @@ namespace LibraryWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private void ValidatePublicationDate(DateOnly publicationDate) 
+        private void ValidatePublicationDate(DateOnly publicationDate)
         {
             if (publicationDate > DateOnly.FromDateTime(DateTime.Today))
             {
@@ -183,7 +211,7 @@ namespace LibraryWebApp.Controllers
         /// <param name="book"></param>
         /// <param name="coverImage"></param>
         /// <returns></returns>
-        private async Task SaveBookCoverImage(Book book, IFormFile? coverImage) 
+        private async Task SaveBookCoverImage(Book book, IFormFile? coverImage)
         {
             // If no cover image was actually passed, that means the book should also be consistent with that
             if (coverImage == null)
