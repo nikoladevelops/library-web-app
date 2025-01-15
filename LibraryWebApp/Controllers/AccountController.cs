@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace LibraryWebApp.Controllers
 {
@@ -11,13 +12,16 @@ namespace LibraryWebApp.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
-        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um)
+        private readonly ApplicationDbContext context;
+
+        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um, ApplicationDbContext con)
         {
             signInManager = signIn;
             userManager = um;
+            context = con;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return View();
         }
@@ -90,10 +94,42 @@ namespace LibraryWebApp.Controllers
             return View(registerViewModel);
         }
 
+        public async Task<IActionResult> Rent(int bookId, string userId, DateOnly returnDate)
+        {
+            RentedBook entry = new();
+            var book =  context.Books.FirstOrDefault(b => b.Id == bookId);
+            if (book.TotalCount > 0)
+            {
+                book.TotalCount -= 1;
+
+                context.SaveChanges();
+                entry = new()
+                {
+                    UserId = userId,
+                    BookId = bookId,
+                    RentalDate = DateOnly.FromDateTime(DateTime.Now),
+                    ReturnDate = returnDate
+                };
+            }
+            context.RentedBooks.Add(entry);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Home");
+        }
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
-            return RedirectToAction(nameof(Index)); ;
+            return RedirectToAction(nameof(Index)); 
+        }
+        public async Task<IActionResult> Details()
+        {
+            List<RentedBook> rented = await context.RentedBooks.ToListAsync();
+            foreach (var item in rented)
+            {
+              item.Book =  context.Books.FirstOrDefault(b => b.Id == item.BookId);
+              item.User = await context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId);
+            }
+            return View(rented);
         }
     }
 }
