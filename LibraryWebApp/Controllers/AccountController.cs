@@ -123,13 +123,15 @@ namespace LibraryWebApp.Controllers
         }
         public async Task<IActionResult> Details()
         {
-            List<RentedBook> rented = await context.RentedBooks.ToListAsync();
-            foreach (var item in rented)
-            {
-              item.Book =  context.Books.FirstOrDefault(b => b.Id == item.BookId);
-              item.User = await context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId);
-            }
-            return View(rented);
+            var currentUserId = userManager.GetUserId(User);
+            //filter only books with the same userId
+            var rentedBooks = await context.RentedBooks
+               .Include(a => a.Book)  
+               .Include(a => a.User)  
+               .Where(a => a.UserId == currentUserId) 
+               .ToListAsync();
+
+            return View(rentedBooks);
         }
     }
 }
