@@ -10,15 +10,15 @@ namespace LibraryWebApp.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
-        private readonly ApplicationDbContext context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um, ApplicationDbContext con)
         {
-            signInManager = signIn;
-            userManager = um;
-            context = con;
+            _signInManager = signIn;
+            _userManager = um;
+            _context = con;
         }
 
         public IActionResult Index()
@@ -32,7 +32,7 @@ namespace LibraryWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var res = await signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
 
                 if (res.Succeeded)
                 {
@@ -53,7 +53,7 @@ namespace LibraryWebApp.Controllers
             if (ModelState.IsValid)
             {
                 // Check if there is already a user with this username
-                var existingUserByUsername = await userManager.FindByNameAsync(registerViewModel.Username);
+                var existingUserByUsername = await _userManager.FindByNameAsync(registerViewModel.Username);
                 if (existingUserByUsername != null)
                 {
                     ModelState.AddModelError("Username", "A user with this username already exists.");
@@ -61,7 +61,7 @@ namespace LibraryWebApp.Controllers
                 }
 
                 // Check if there is already a user with this email
-                var existingUserByEmail = await userManager.FindByEmailAsync(registerViewModel.Email);
+                var existingUserByEmail = await _userManager.FindByEmailAsync(registerViewModel.Email);
                 if (existingUserByEmail != null)
                 {
                     ModelState.AddModelError("Email", "A user with this email address already exists.");
@@ -75,12 +75,12 @@ namespace LibraryWebApp.Controllers
                     Email = registerViewModel.Email
                 };
 
-                var result = await userManager.CreateAsync(user, registerViewModel.Password);
-                await userManager.AddToRoleAsync(user, "User");
+                var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+                await _userManager.AddToRoleAsync(user, "User");
 
                 if (result.Succeeded)
                 {
-                    await signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
+                    await _signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -94,38 +94,51 @@ namespace LibraryWebApp.Controllers
             return View(registerViewModel);
         }
 
-        public async Task<IActionResult> Rent(int bookId, string userId, DateOnly returnDate)
+        public async Task<IActionResult> Rent(int bookId, string userId)
         {
-            RentedBook entry = new();
-            var book =  context.Books.FirstOrDefault(b => b.Id == bookId);
-            if (book.TotalCount > 0)
-            {
-                book.TotalCount -= 1;
+            Book? book = await _context.Books.FindAsync(bookId);
 
-                context.SaveChanges();
-                entry = new()
-                {
-                    UserId = userId,
-                    BookId = bookId,
-                    RentalDate = DateOnly.FromDateTime(DateTime.Now),
-                    ReturnDate = returnDate
-                };
+            if (book == null) 
+            {
+                return NotFound();
             }
-            context.RentedBooks.Add(entry);
-            await context.SaveChangesAsync();
+
+            if (book.AvailableCount == 0)
+            {
+                // TODO maybe a better custom error view - the book cannot be rented, no available copies
+                // or maybe a ModelState error and redirect to the book details page?
+
+                return NotFound();
+            }
+
+            book.AvailableCount -= 1;
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly returnDate = today.AddDays(Globals.BookRentDayLimit);
+
+            var entry = new RentedBook()
+            {
+                UserId = userId,
+                BookId = bookId,
+                RentalDate = today,
+                ReturnDate = returnDate
+            };
+            
+            _context.RentedBooks.Add(entry);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
         }
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await _signInManager.SignOutAsync();
             return RedirectToAction(nameof(Index)); 
         }
         public async Task<IActionResult> Details()
         {
-            var currentUserId = userManager.GetUserId(User);
-            //filter only books with the same userId
-            var rentedBooks = await context.RentedBooks
+            var currentUserId = _userManager.GetUserId(User);
+
+            var rentedBooks = await _context.RentedBooks
                .Include(a => a.Book)  
                .Include(a => a.User)  
                .Where(a => a.UserId == currentUserId) 

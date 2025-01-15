@@ -18,20 +18,19 @@ namespace LibraryWebApp.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BookId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RentalDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    IsReturned = table.Column<bool>(type: "bit", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RentedBooks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RentedBooks_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
+                        name: "FK_RentedBooks_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RentedBooks_Books_BookId",
                         column: x => x.BookId,
@@ -41,14 +40,14 @@ namespace LibraryWebApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RentedBooks_ApplicationUserId",
-                table: "RentedBooks",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RentedBooks_BookId",
                 table: "RentedBooks",
                 column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RentedBooks_UserId",
+                table: "RentedBooks",
+                column: "UserId");
         }
 
         /// <inheritdoc />

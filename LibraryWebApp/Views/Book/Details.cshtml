@@ -53,9 +53,9 @@
 <form asp-controller="Account" asp-action="Rent" method="get">
     <input type="hidden" name="userId" value="@userId" />
     <input type="hidden" name="bookId" value="@Model?.Id" />
-
-    <label for="returnDate">Select Return Date:</label>
-    <input type="date" id="returnDate" name="returnDate" required />
+    
+    <p>You can keep the book for @Globals.BookRentDayLimit days max</p>
+    <p>Return date: @DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit)</p>
 
     <div class="form-group" style="margin-top:10px">
         <input type="submit" value="Rent Book" class="btn btn-primary" />

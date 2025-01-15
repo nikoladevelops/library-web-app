@@ -188,14 +188,8 @@ namespace LibraryWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("BookId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsReturned")
-                        .HasColumnType("bit");
 
                     b.Property<DateOnly>("RentalDate")
                         .HasColumnType("date");
@@ -205,13 +199,13 @@ namespace LibraryWebApp.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("BookId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("RentedBooks");
                 });
@@ -381,15 +375,21 @@ namespace LibraryWebApp.Migrations
 
             modelBuilder.Entity("LibraryWebApp.Models.RentedBook", b =>
                 {
-                    b.HasOne("LibraryWebApp.Models.ApplicationUser", null)
-                        .WithMany("RentedBooks")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("LibraryWebApp.Models.Book", null)
+                    b.HasOne("LibraryWebApp.Models.Book", "Book")
                         .WithMany("RentedBooks")
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("LibraryWebApp.Models.ApplicationUser", "User")
+                        .WithMany("RentedBooks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
