@@ -27,5 +27,6 @@ namespace LibraryWebApp.Models
         
         public ICollection<Author>? Authors { get; set; }
 
+        public ICollection<RentedBook>? RentedBooks { get; set; }
     }
 }

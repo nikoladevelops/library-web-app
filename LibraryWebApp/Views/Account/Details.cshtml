@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<RentedBook>
+@{
+    ViewData["Title"] = "My profile";
+}
+
+<h1>Details</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label class="control-label">Title</label>
+            </th>
+            <th>
+                <label class="control-label">Rented Date</label>
+            </th>
+            <th>
+                <label class="control-label">Return Date</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>
+                    @book.Book.Title
+                </td>
+                <td>
+                    @book.Book.PublicationDate.ToString("MM/dd/yyyy")
+                </td>
+                <td>
+                    @book.ReturnDate
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
