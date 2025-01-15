@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryWebApp.Controllers
 {
@@ -19,6 +20,7 @@ namespace LibraryWebApp.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Genres.ToListAsync());
@@ -40,11 +42,13 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(GenreCreateViewModel genre)
@@ -58,6 +62,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,6 +78,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Genre genre)
@@ -92,6 +98,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -109,6 +116,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)
