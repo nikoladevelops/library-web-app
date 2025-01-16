@@ -1,10 +1,8 @@
 ﻿using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace LibraryWebApp.Controllers
 {
@@ -93,11 +91,10 @@ namespace LibraryWebApp.Controllers
 
             return View(registerViewModel);
         }
-
         public async Task<IActionResult> Rent(int bookId, string userId)
         {
             Book? book = await _context.Books.FindAsync(bookId);
-
+            List<RentedBook> userRentedBooks = await _context.RentedBooks.Where(r => r.UserId == userId).ToListAsync();
             if (book == null) 
             {
                 return NotFound();
@@ -110,11 +107,17 @@ namespace LibraryWebApp.Controllers
 
                 return NotFound();
             }
+            if (HasOverdueBooks(userId, userRentedBooks))
+            {
+                // TODO add an error page or redirect to proper place, due to user having unreturned books that are overdue
+                return NotFound();
+            }
 
             book.AvailableCount -= 1;
 
-            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
             DateOnly returnDate = today.AddDays(Globals.BookRentDayLimit);
+
+            //finding if user has any overdue books
 
             var entry = new RentedBook()
             {
@@ -123,17 +126,32 @@ namespace LibraryWebApp.Controllers
                 RentalDate = today,
                 ReturnDate = returnDate
             };
-            
             _context.RentedBooks.Add(entry);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Return(int Id)
+        {
+            var rBook = await _context.RentedBooks.FindAsync(Id);
+            var book = await _context.Books.FindAsync(rBook.BookId);
+            if (rBook != null)
+            {
+                book.AvailableCount += 1;
+                _context.Books.Update(book);
+                rBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details));
+        }
+
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction(nameof(Index)); 
-        }
+        } 
         public async Task<IActionResult> Details()
         {
             var currentUserId = _userManager.GetUserId(User);
@@ -145,6 +163,17 @@ namespace LibraryWebApp.Controllers
                .ToListAsync();
 
             return View(rentedBooks);
+        }
+        private bool HasOverdueBooks(string userId, List<RentedBook> books)
+        {
+            foreach (var item in books)
+            {
+                if (item.ReturnedAt == null && item.ReturnDate < DateOnly.FromDateTime(DateTime.Now))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

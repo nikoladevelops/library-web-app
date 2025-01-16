@@ -18,5 +18,6 @@ namespace LibraryWebApp.Models
 
         public DateOnly RentalDate { get; set; }
         public DateOnly? ReturnDate { get; set; }
+        public DateOnly? ReturnedAt { get; set; }
     }
 }
