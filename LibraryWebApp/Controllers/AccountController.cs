@@ -115,6 +115,7 @@ namespace LibraryWebApp.Controllers
 
             book.AvailableCount -= 1;
 
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
             DateOnly returnDate = today.AddDays(Globals.BookRentDayLimit);
 
             //finding if user has any overdue books
@@ -146,6 +147,7 @@ namespace LibraryWebApp.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details));
         }
+
 
         public async Task<IActionResult> Logout()
         {
