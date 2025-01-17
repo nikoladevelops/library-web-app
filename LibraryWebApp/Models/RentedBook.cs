@@ -17,7 +17,7 @@ namespace LibraryWebApp.Models
         public ApplicationUser User { get; set; }
 
         public DateOnly RentalDate { get; set; }
-        public DateOnly? ReturnDate { get; set; }
+        public DateOnly Deadline { get; set; }
         public DateOnly? ReturnedAt { get; set; }
     }
 }

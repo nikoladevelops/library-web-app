@@ -22,7 +22,7 @@
             <label asp-for="PublicationDate"></label>
         </dt>
         <dd class="col-sm-10">
-            @Model.PublicationDate.ToString("MM/dd/yyyy")
+            @Model.PublicationDate.ToString(Globals.DateFormat)
         </dd>
         <dt class="col-sm-2">
             <label asp-for="AvailableCount"></label>

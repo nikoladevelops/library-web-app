@@ -1,5 +1,6 @@
 ﻿using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,31 +20,16 @@ namespace LibraryWebApp.Controllers
             _context = con;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
-
-                if (res.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
         public IActionResult Register()
         {
             return View();
         }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
@@ -91,91 +77,30 @@ namespace LibraryWebApp.Controllers
 
             return View(registerViewModel);
         }
-        public async Task<IActionResult> Rent(int bookId, string userId)
-        {
-            Book? book = await _context.Books.FindAsync(bookId);
-            List<RentedBook> userRentedBooks = await _context.RentedBooks.Where(r => r.UserId == userId).ToListAsync();
-            if (book == null) 
-            {
-                return NotFound();
-            }
 
-            if (book.AvailableCount == 0)
-            {
-                // TODO maybe a better custom error view - the book cannot be rented, no available copies
-                // or maybe a ModelState error and redirect to the book details page?
-
-                return NotFound();
-            }
-            if (HasOverdueBooks(userId, userRentedBooks))
-            {
-                // TODO add an error page or redirect to proper place, due to user having unreturned books that are overdue
-                return NotFound();
-            }
-
-            book.AvailableCount -= 1;
-
-            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-            DateOnly returnDate = today.AddDays(Globals.BookRentDayLimit);
-
-            //finding if user has any overdue books
-
-            var entry = new RentedBook()
-            {
-                UserId = userId,
-                BookId = bookId,
-                RentalDate = today,
-                ReturnDate = returnDate
-            };
-            _context.RentedBooks.Add(entry);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Home");
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Return(int Id)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var rBook = await _context.RentedBooks.FindAsync(Id);
-            var book = await _context.Books.FindAsync(rBook.BookId);
-            if (rBook != null)
+            if (ModelState.IsValid)
             {
-                book.AvailableCount += 1;
-                _context.Books.Update(book);
-                rBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
+                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+
+                if (res.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction(nameof(Login));
         }
 
-
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(Index)); 
-        } 
-        public async Task<IActionResult> Details()
-        {
-            var currentUserId = _userManager.GetUserId(User);
-
-            var rentedBooks = await _context.RentedBooks
-               .Include(a => a.Book)  
-               .Include(a => a.User)  
-               .Where(a => a.UserId == currentUserId) 
-               .ToListAsync();
-
-            return View(rentedBooks);
-        }
-        private bool HasOverdueBooks(string userId, List<RentedBook> books)
-        {
-            foreach (var item in books)
-            {
-                if (item.ReturnedAt == null && item.ReturnDate < DateOnly.FromDateTime(DateTime.Now))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return RedirectToAction("Index", "Home");
         }
     }
 }
