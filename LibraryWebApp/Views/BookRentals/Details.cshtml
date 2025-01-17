@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<RentedBook>
+@{
+    ViewData["Title"] = "My profile";
+}
+<h1>Rented</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label class="control-label">Title</label>
+            </th>
+            <th>
+                <label class="control-label">Rented Date</label>
+            </th>
+            <th>
+                <label class="control-label">Deadline</label>
+            </th>
+            <th>
+                <label class="control-label">Returned At</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>
+                    @book.Book.Title
+                </td>
+                <td>
+                    @book.RentalDate.ToString(Globals.DateFormat)
+                </td>
+                <td>
+                    @book.Deadline
+                </td>
+                <td>
+                    @if (book.ReturnedAt.HasValue)
+                    {
+                        <p>
+                            @($"{book.ReturnedAt.Value.ToString(Globals.DateFormat)} {(book.ReturnedAt <= book.Deadline ? "✔ Returned on time" : "✘ Returned late")}")
+                        </p>
+                    }
+                    else
+                    {
+                        <form asp-controller="BookRentals" asp-action="Return">
+                            <input type="hidden" name="bookId" value="@book.Id" />
+                            <button type="submit" class="btn btn-primary">@(book.Deadline <= DateOnly.FromDateTime(DateTime.Now) ? "Return Book Late" : "Return Book")</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

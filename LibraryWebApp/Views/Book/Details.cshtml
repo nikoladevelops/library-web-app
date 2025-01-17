@@ -1,10 +1,10 @@
 ﻿@model Book
 @using Microsoft.AspNetCore.Identity
-@inject UserManager<ApplicationUser> UserManager
+
 @{
     ViewData["Title"] = "Details";
-    var userId = UserManager.GetUserId(User);
 }
+
 <h1>Details</h1>
 
 <div>
@@ -22,7 +22,7 @@
             <label asp-for="PublicationDate"></label>
         </dt>
         <dd class="col-sm-10">
-            @Model.PublicationDate.ToString("MM/dd/yyyy")
+            @Model.PublicationDate.ToString(Globals.DateFormat)
         </dd>
         <dt class="col-sm-2">
             <label asp-for="AvailableCount"></label>
@@ -49,17 +49,19 @@
 <br />
 @if (@User.Identity.IsAuthenticated)
 {
+    <form asp-controller="BookRentals" asp-action="Rent">
+        <input type="hidden" name="bookId" value="@Model?.Id" />
     
-<form asp-controller="Account" asp-action="Rent" method="get">
-    <input type="hidden" name="userId" value="@userId" />
-    <input type="hidden" name="bookId" value="@Model?.Id" />
-    
-    <p>You can keep the book for @Globals.BookRentDayLimit days max</p>
-    <p>Return date: @DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit)</p>
+        <p>You can keep the book for @Globals.BookRentDayLimit days max</p>
+        <p>Return date: @DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit).ToString(Globals.DateFormat)</p>
 
-    <div class="form-group" style="margin-top:10px">
-        <input type="submit" value="Rent Book" class="btn btn-primary" />
-    </div>
-</form>
+        <div class="form-group" style="margin-top:10px">
+            <input type="submit" value="Rent Book" class="btn btn-primary" @(Model.AvailableCount == 0 ? "disabled" : "") />
+            @if (Model.AvailableCount == 0)
+            {
+                <p>No available copies left, please come back later</p>
+            }
+        </div>
+    </form>
 }
 

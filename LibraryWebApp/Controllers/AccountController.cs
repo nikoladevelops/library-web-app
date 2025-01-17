@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace LibraryWebApp.Controllers
 {
@@ -21,31 +20,16 @@ namespace LibraryWebApp.Controllers
             _context = con;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
-
-                if (res.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
         public IActionResult Register()
         {
             return View();
         }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
@@ -94,57 +78,29 @@ namespace LibraryWebApp.Controllers
             return View(registerViewModel);
         }
 
-        public async Task<IActionResult> Rent(int bookId, string userId)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            Book? book = await _context.Books.FindAsync(bookId);
-
-            if (book == null) 
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+
+                if (res.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
-
-            if (book.AvailableCount == 0)
-            {
-                // TODO maybe a better custom error view - the book cannot be rented, no available copies
-                // or maybe a ModelState error and redirect to the book details page?
-
-                return NotFound();
-            }
-
-            book.AvailableCount -= 1;
-
-            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-            DateOnly returnDate = today.AddDays(Globals.BookRentDayLimit);
-
-            var entry = new RentedBook()
-            {
-                UserId = userId,
-                BookId = bookId,
-                RentalDate = today,
-                ReturnDate = returnDate
-            };
-            
-            _context.RentedBooks.Add(entry);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(Login));
         }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(Index)); 
-        }
-        public async Task<IActionResult> Details()
-        {
-            var currentUserId = _userManager.GetUserId(User);
-
-            var rentedBooks = await _context.RentedBooks
-               .Include(a => a.Book)  
-               .Include(a => a.User)  
-               .Where(a => a.UserId == currentUserId) 
-               .ToListAsync();
-
-            return View(rentedBooks);
+            return RedirectToAction("Index", "Home");
         }
     }
 }
