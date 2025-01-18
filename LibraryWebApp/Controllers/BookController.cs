@@ -22,7 +22,7 @@ namespace LibraryWebApp.Controllers
             _bookCoverImageManager = imageSaver;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Index()
         {
             List<Book> allBooks = await _context.Books.ToListAsync();
@@ -49,13 +49,13 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public IActionResult Create()
         {
             return View();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Book book, IFormFile? coverImage) // TODO should probably switch to using ViewModels
@@ -74,7 +74,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -91,7 +91,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Book book, IFormFile? coverImage)
@@ -128,7 +128,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -149,7 +149,7 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)
