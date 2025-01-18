@@ -54,7 +54,7 @@ namespace LibraryWebApp.Controllers
             return View(new BookCreateViewModel
             {
                 AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
-                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name")
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
             });
         }
 
@@ -119,6 +119,11 @@ namespace LibraryWebApp.Controllers
 
             return View(new BookUpdateViewModel
             {
+                Id = book.Id,
+                Title = book.Title,
+                PublicationDate = book.PublicationDate,
+                TotalCount = book.TotalCount,
+                AvailableCount = book.AvailableCount,
                 AvailableAuthors = new MultiSelectList(_context.Authors.Where(author => !book.Authors.Contains(author)), "Id", "Name"),
                 AvailableGenres = new MultiSelectList(_context.Genres.Where(genre => !book.Genres.Contains(genre)), "Id", "Name"),
                 PrevSelectedAuthors = _context.Authors.Where(author => book.Authors.Contains(author)).ToList(),
@@ -157,6 +162,7 @@ namespace LibraryWebApp.Controllers
                     Title = data.Title,
                     TotalCount = data.TotalCount,
                     AvailableCount = data.AvailableCount,
+                    PublicationDate = data.PublicationDate,
                     Authors = _context.Authors.
                         Where(author => data.SelectedAuthorIDs.
                             Contains(author.Id)).
