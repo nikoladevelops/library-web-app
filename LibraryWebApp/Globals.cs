@@ -31,6 +31,14 @@
         /// <summary>
         /// The default date format used in the application
         /// </summary>
-        public static string DateFormat { get => "MM/dd/yyyy"; }
+        public static string DateFormat { get => "dd/MM/yyyy"; }
+
+        /// <summary>
+        /// The number of days before the book return deadline when a warning message is displayed to the user.
+        /// </summary>
+        public static int RentDeadlineWarningPeriod { get => 3; }
+
+
+
     }
 }
