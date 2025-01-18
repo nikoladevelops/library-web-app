@@ -1,13 +1,178 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model HomeViewModel
 @{
-    var userRole = ViewData["UserRoles"] as string;
+    ViewData["Title"] = "Home Page";
+    var countBooks = @Model.BookData.Count();
 }
-<div class="text-center">
-    <h1 class="display-4">Welcome @User.Identity.Name</h1>
-    @if (@User.Identity.IsAuthenticated)
-    {
-    <h2> logged in as @userRole</h2>
-    }
+
+<div class="container m-0 p-0">
+    <div class="row g-2 align-items-center justify-content-center mb-3 flex-wrap">
+        <!-- Search Bar -->
+        <div class="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
+            <input name="searchTerm" value="@Model.SearchTerm" id="searchBar" class="form-control border-primary" placeholder="Search" style="padding-left: 10px;" />
+        </div>
+
+        <!-- Search by filter -->
+        <div class="col-12 col-md-3 d-flex align-items-center mb-2 mb-md-0">
+            <label for="searchBy" class="form-label w-50">Search by:</label>
+            <select id="searchBy" asp-items="@Model.SearchByDropDown" asp-for="SearchBy" class="form-control text-center border-primary">
+            </select>
+        </div>
+
+        <!-- Order by filter -->
+        <div class="col-12 col-md-3 d-flex align-items-center mb-2 mb-md-0">
+            <label for="orderBy" class="form-label w-50">Order by:</label>
+            <select id="orderBy" asp-items="@Model.OrderByDropDown" asp-for="OrderBy" class="form-control text-center border-primary">
+            </select>
+        </div>
+
+        <!-- Search Button -->
+        <div class="col-12 col-md-auto d-flex align-items-center">
+            <a id="searchButton" href="#" onclick="return searchFor();" class="btn btn-primary">Search</a>
+        </div>
+    </div>
 </div>
+
+@if (countBooks == 0)
+{
+    <h3>No books matching your search result.</h3>
+}
+else
+{
+    <h3>Books</h3>
+
+    <div class="container py-3">
+        <div class="row g-4">
+            @foreach (var book in Model.BookData)
+            {
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card border border-primary rounded h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="@book.CoverImageUrl" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="Book Cover">
+                        </div>
+                        <div class="card-body d-flex flex-column justify-content-end text-center">
+                            <h6 class="card-title">@book.Title</h6>
+                        </div>
+                        <div class="card-footer bg-light text-center">
+                            <a class="btn btn-sm btn-dark" asp-controller="Book" asp-action="Details" asp-route-id="@book.Id">SHOW</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="text-center">
+        <!-- Back Arrow -->
+        <a href="#" onclick="return backArrow(this, true);" class="h3 text-decoration-none">&#60;</a>
+
+        @{
+            int currentPage = Model.Page; // The current page is provided by the model.
+            int maxPage = Model.MaxPage; // The total number of pages available.
+
+            // Define the maximum number of pages to display in the pagination (10 pages per view)
+            int maxDisplayedPages = 10;
+
+            // Calculate the starting and ending index for the page links
+            int startingIndex = Math.Max(1, currentPage - maxDisplayedPages / 2); // Center the page range around the current page
+            int endingIndex = Math.Min(maxPage, startingIndex + maxDisplayedPages - 1); // Ensure it does not go past the maxPage
+
+            // Adjust startingIndex if it goes below 1
+            if (endingIndex - startingIndex < maxDisplayedPages - 1)
+            {
+                startingIndex = Math.Max(1, endingIndex - maxDisplayedPages + 1);
+            }
+
+            // Display page links
+            for (var i = startingIndex; i <= endingIndex; i++)
+            {
+                if (i == currentPage)
+                {
+                    <a id="currentPage" href="#" onclick="return changePage(this, @i);" class="h3 text-decoration-none">@i</a>
+                }
+                else
+                {
+                    <a href="#" onclick="return changePage(this, @i);" class="h5 text-decoration-none">@i</a>
+                }
+            }
+
+            // Display an ellipsis and last page if the ending index is less than max page
+            if (endingIndex < maxPage)
+            {
+                <span class="h5">....</span>
+                <a href="#" onclick="return changePage(this, @maxPage);" class="h5 text-decoration-none">@maxPage</a>
+            }
+        }
+
+        <!-- Forward Arrow -->
+        <a href="#" onclick="return backArrow(this, false);" class="h3 text-decoration-none">&#62;</a>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchBar = document.querySelector("#searchBar");
+
+            // Add event listener for the enter key in the search bar
+            searchBar.addEventListener("keyup", (e) => {
+                if (e.key === "Enter") {
+                    searchFor();
+                }
+            });
+
+            // Event handler for pagination arrows
+            window.backArrow = (arrowElement, isBackArrow) => {
+                let currentPage = @Model.Page;
+                const maxPage = @Model.MaxPage;
+                const newPage = isBackArrow ? currentPage - 1 : currentPage + 1;
+
+                if (newPage < 1 || newPage > maxPage) {
+                    return false;
+                }
+
+                navigateToPage(newPage);
+                return false;
+            };
+
+            // Event handler for pagination links
+            window.changePage = (pageLinkElement, page) => {
+                navigateToPage(page);
+                return false;
+            };
+
+            // Navigate to a specific page
+            function navigateToPage(page) {
+                if (page < 1 || page > @Model.MaxPage) {
+                    return false;
+                }
+
+                const query = buildSearchQuery();
+                window.location.href = `/?page=${page}&${query}`;
+                return false;
+            }
+
+            // Event handler for search
+            window.searchFor = () => {
+                const query = buildSearchQuery();
+                window.location.href = `/?${query}`;
+                return false;
+            };
+
+            // Utility to build the search query
+            function buildSearchQuery() {
+                const searchTerm = searchBar.value.trim();
+                const searchBy = document.querySelector("#searchBy").value;
+                const orderBy = document.querySelector("#orderBy").value;
+
+                const params = new URLSearchParams();
+
+                if (searchTerm) params.append("searchTerm", searchTerm);
+                if (searchBy) params.append("searchBy", searchBy);
+                if (orderBy) params.append("orderBy", orderBy);
+
+                return params.toString();
+            }
+        });
+    </script>
+}

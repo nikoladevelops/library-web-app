@@ -47,7 +47,7 @@
             var isSoonOverdue = currentDate.AddDays(Globals.RentDeadlineWarningPeriod) >= book.Deadline && !(book.ReturnedAt.HasValue);
             <tr class="@(isSoonOverdue ? "table-danger" : "")">
                 <td>
-                    @book.Book.Title
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id")>@book.Book.Title</a>
                 </td>
                 <td>
                     @book.RentalDate.ToString(Globals.DateFormat)
