@@ -20,7 +20,7 @@ namespace LibraryWebApp.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Genres.ToListAsync());
@@ -42,13 +42,13 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public IActionResult Create()
         {
             return View();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(GenreCreateViewModel genre)
@@ -62,7 +62,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,7 +78,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Genre genre)
@@ -98,7 +98,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -116,7 +116,7 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)

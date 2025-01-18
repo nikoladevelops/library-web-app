@@ -61,10 +61,12 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-DataSeeder seeder = new DataSeeder();
+// After the app is built, we seed the database with some initial data, so all this code can be removed after the first run
+DataSeeder seeder = new DataSeeder(app.Services);
 
-await seeder.SeedRoles(app.Services);
-await seeder.SeedUsers(app.Services);
+await seeder.SeedRoles();
+await seeder.SeedUsers();
+await seeder.SeedBookGenres();
 
 app.Run();
 

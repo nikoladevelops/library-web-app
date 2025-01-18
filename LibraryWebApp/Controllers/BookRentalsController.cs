@@ -91,7 +91,7 @@ namespace LibraryWebApp.Controllers
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 // If you are not the one who took the book, you cannot return it, unless you are an admin and you are fixing some sort of bug
-                if (rBook.UserId != userId && User.IsInRole("Admin") == false)
+                if (rBook.UserId != userId && User.IsInRole(Globals.Roles.Admin) == false)
                 {
                     // TODO better error message
                     return NotFound();
