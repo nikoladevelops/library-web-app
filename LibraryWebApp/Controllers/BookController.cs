@@ -49,60 +49,61 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
         public IActionResult Create()
         {
-            ViewData["AuthorsAndGenres"] = new GenresAuthorsViewModel
+            return View(new BookCreateViewModel
             {
-                Authors = _context.Authors.Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                }).ToList(),
-
-                Genres = _context.Genres.Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                }).ToList(),
-            };
-            return View();
+                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name")
+            });
         }
 
-
-        // TODO Make it accessible to Admins only
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Book book, IFormFile? coverImage, List<int> Authors, List<int> Genres) // TODO should probably switch to using ViewModels
+        public async Task<IActionResult> Create(BookCreateViewModel data, IFormFile? coverImage)
         {
-            ValidatePublicationDate(book.PublicationDate);
+            ValidatePublicationDate(data.PublicationDate);
 
             if (ModelState.IsValid)
             {
+                Book book = new Book
+                {
+                    Title = data.Title,
+                    AvailableCount = data.TotalCount,
+                    TotalCount = data.TotalCount,
+                    PublicationDate = data.PublicationDate,
+                    Authors = _context.Authors.
+                        Where(author => data.SelectedAuthorIDs.
+                            Contains(author.Id)).
+                        Include(author => author.Books).
+                        ToList(),
+                    Genres = _context.Genres.
+                        Where(genre => data.SelectedGenreIDs.
+                            Contains(genre.Id)).
+                        Include(genre => genre.Books).
+                        ToList(),
+                };
                 await SaveBookCoverImage(book, coverImage);
-                book.Authors = _context.Authors.Where(a => Authors.Contains(a.Id)).ToList();
-                book.Genres = _context.Genres.Where(a => Authors.Contains(a.Id)).ToList();
-                book.AvailableCount = book.TotalCount;
-                _context.Add(book);
-                foreach (var id in Authors)
+
+                foreach (var id in data.SelectedAuthorIDs)
                 {
                     Author author = await _context.Authors.FindAsync(id);
                     author.Books.Add(book);
                     _context.Update(author);
                 }
-                foreach (var id in Genres)
+                foreach (var id in data.SelectedGenreIDs)
                 {
                     Genre genre = await _context.Genres.FindAsync(id);
                     genre.Books.Add(book);
                     _context.Update(genre);
                 }
+
+                _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(data);
         }
-
-        // TODO Make it accessible to Admins only
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -110,29 +111,33 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books.Include(book => book.Genres).Include(book => book.Authors).FirstOrDefaultAsync(book => book.Id == id);
             if (book == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+            return View(new BookUpdateViewModel
+            {
+                AvailableAuthors = new MultiSelectList(_context.Authors.Where(author => !book.Authors.Contains(author)), "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres.Where(genre => !book.Genres.Contains(genre)), "Id", "Name"),
+                PrevSelectedAuthors = _context.Authors.Where(author => book.Authors.Contains(author)).ToList(),
+                PrevSelectedGenres = _context.Genres.Where(genre => book.Genres.Contains(genre)).ToList(),
+            });
         }
 
-        // TODO Make it accessible to Admins only
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Book book, IFormFile? coverImage)
+        public async Task<IActionResult> Edit(BookUpdateViewModel data, IFormFile? coverImage)
         {
-            var bookInDb = await _context.Books.FindAsync(book.Id);
+            var bookInDb = await _context.Books.FindAsync(data.Id);
 
             if (bookInDb == null)
             {
                 return NotFound();
             }
 
-
-            ValidatePublicationDate(book.PublicationDate);
+            ValidatePublicationDate(data.PublicationDate);
 
             if (ModelState.IsValid)
             {
@@ -145,7 +150,69 @@ namespace LibraryWebApp.Controllers
 
                 // Now book has no bookInDbCoverImageUrl which is good.
 
+                Book book = new Book
+                {
+                    Id = data.Id,
+                    CoverImageUrl = data.CoverImageUrl,
+                    Title = data.Title,
+                    TotalCount = data.TotalCount,
+                    AvailableCount = data.AvailableCount,
+                    Authors = _context.Authors.
+                        Where(author => data.SelectedAuthorIDs.
+                            Contains(author.Id)).
+                        Include(author => author.Books).
+                        ToList(),
+                    Genres = _context.Genres.
+                        Where(genre => data.SelectedGenreIDs.
+                            Contains(genre.Id)).
+                        Include(genre => genre.Books).
+                        ToList(),
+                };
+
                 _context.Entry(bookInDb).CurrentValues.SetValues(book); // This also copied the old book cover image url
+
+                foreach (Author author in _context.Authors)
+                {
+                    if (author.Books == null) continue;
+
+                    if (author.Books.Contains(bookInDb))
+                    {
+                        if (data.SelectedAuthorIDs.Contains(author.Id)) continue;
+                        else
+                        {
+                            author.Books.Remove(bookInDb);
+                        }
+                    }
+                    else
+                    {
+                        if (!data.SelectedAuthorIDs.Contains(author.Id)) continue;
+                        else
+                        {
+                            author.Books.Add(bookInDb);
+                        }
+                    }
+                }
+                foreach (Genre genre in _context.Genres)
+                {
+                    if (genre.Books == null) continue;
+
+                    if (genre.Books.Contains(bookInDb))
+                    {
+                        if (data.SelectedGenreIDs.Contains(genre.Id)) continue;
+                        else
+                        {
+                            genre.Books.Remove(bookInDb);
+                        }
+                    }
+                    else
+                    {
+                        if (!data.SelectedGenreIDs.Contains(genre.Id)) continue;
+                        else
+                        {
+                            genre.Books.Add(bookInDb);
+                        }
+                    }
+                }
 
                 await SaveBookCoverImage(bookInDb, coverImage);
                 await _context.SaveChangesAsync();
@@ -153,10 +220,9 @@ namespace LibraryWebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(book);
+            return View(data);
         }
 
-        // TODO Make it accessible to Admins only
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -177,7 +243,6 @@ namespace LibraryWebApp.Controllers
             return View(book);
         }
 
-        // TODO Make it accessible to Admins only
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)

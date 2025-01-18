@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LibraryWebApp.ViewModels
 {
@@ -7,7 +8,6 @@ namespace LibraryWebApp.ViewModels
     {
         [Key]
         public int Id { get; set; }
-
         [RegularExpression(@"^[^\/\\:\*\<>\|]+$", ErrorMessage = "The Title contains invalid characters.")]
         public string Title { get; set; }
 
@@ -19,7 +19,18 @@ namespace LibraryWebApp.ViewModels
 
         [DisplayName("Total Count")]
         public int TotalCount { get; set; }
-        public List<int> Authors { get; set; }
-        public List<int> Genres { get; set; }
+
+        [DisplayName("Cover Image")]
+        public string? CoverImageUrl { get; set; }
+
+        [DisplayName("Authors")]
+        public List<int> SelectedAuthorIDs { get; set; }
+
+        public MultiSelectList? AvailableAuthors { get; set; }
+
+        [DisplayName("Genres")]
+        public List<int> SelectedGenreIDs { get; set; }
+
+        public MultiSelectList? AvailableGenres { get; set; }
     }
 }
