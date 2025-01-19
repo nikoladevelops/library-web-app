@@ -45,15 +45,15 @@ else
             @foreach (var book in Model.BookData)
             {
                 <div class="col-12 col-md-6 col-lg-3">
-                    <div class="card border border-primary rounded h-100">
+                    <div class="card border border-light rounded h-100">
                         <div class="card-img-container" style="height: 250px; overflow: hidden;">
                             <img src="@book.CoverImageUrl" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="Book Cover">
                         </div>
                         <div class="card-body d-flex flex-column justify-content-end text-center">
                             <h6 class="card-title">@book.Title</h6>
                         </div>
-                        <div class="card-footer bg-light text-center">
-                            <a class="btn btn-sm btn-dark" asp-controller="Book" asp-action="Details" asp-route-id="@book.Id">SHOW</a>
+                        <div class="card-footer bg-dark text-center">
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Book" asp-action="Details" asp-route-id="@book.Id">SHOW</a>
                         </div>
                     </div>
                 </div>

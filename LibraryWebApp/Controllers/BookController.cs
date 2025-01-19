@@ -68,6 +68,7 @@ namespace LibraryWebApp.Controllers
                 AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
                 AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
                 DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
+                PublicationDate = DateOnly.FromDateTime(DateTime.Today)
             };
 
             return View(vm);
