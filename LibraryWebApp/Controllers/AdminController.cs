@@ -54,7 +54,7 @@ namespace LibraryWebApp.Controllers
             {
                 TopUsers = users.ToList()
             };
-             return View("Panel", viewModel);
+            return View("Panel", viewModel);
         }
 
         public async Task<IActionResult> GetAllUsers()
@@ -77,8 +77,8 @@ namespace LibraryWebApp.Controllers
             var activeUsers = _context.Users
             .Where(user => _context.RentedBooks
             .Where(rentedBook => rentedBook.UserId == user.Id && rentedBook.ReturnedAt == null)
-            .Any()) 
-            .Distinct(); 
+            .Any())
+            .Distinct();
             return activeUsers;
         }
 
@@ -97,8 +97,7 @@ namespace LibraryWebApp.Controllers
 
             if (user == null)
             {
-                // TODO better message
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("user"));
             }
 
             return View(user);
@@ -123,8 +122,7 @@ namespace LibraryWebApp.Controllers
 
             if (user == null)
             {
-                // TODO better message
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("user"));
             }
 
             _context.Users.Remove(user);
@@ -139,8 +137,7 @@ namespace LibraryWebApp.Controllers
 
             if (user == null)
             {
-                // TODO better message
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("user"));
             }
 
             var vm = new EditAppUserVM
@@ -153,22 +150,21 @@ namespace LibraryWebApp.Controllers
 
             return View(vm);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditAppUserVM vm)
         {
             var user = await _context.Users.FindAsync(vm.Id);
 
-            if (user == null) 
+            if (user == null)
             {
-                // TODO better error message - user not found view
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("user"));
             }
 
             if (ModelState.IsValid)
             {
-                user.UserName = vm.UserName; 
+                user.UserName = vm.UserName;
                 user.NormalizedUserName = vm.UserName.ToUpper();
                 user.Email = vm.Email;
                 user.NormalizedEmail = vm.Email.ToUpper();
@@ -182,7 +178,7 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
-        public async Task<IActionResult> ReturnAll(string id) 
+        public async Task<IActionResult> ReturnAll(string id)
         {
             var rentedBooks = await _context.RentedBooks
                 .Where(b => b.UserId == id && b.ReturnedAt == null)
@@ -217,7 +213,7 @@ namespace LibraryWebApp.Controllers
                 rentedBook.ReturnedAt = dateNow;
             }
 
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Panel));
         }
 
@@ -232,23 +228,21 @@ namespace LibraryWebApp.Controllers
                 return RedirectToAction(nameof(Panel));
             }
 
-            // TODO need an error message that no such user exists in order to ban him
-            return NotFound();
+            return View("Error", ErrorViewModelTypes.NotFound("user"));
         }
 
         public async Task<IActionResult> UnbanUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
 
-            if (user != null && user.IsBanned) 
+            if (user != null && user.IsBanned)
             {
                 user.IsBanned = false;
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Panel));
             }
 
-            // TODO need an error message that no such banned user exists in order to unban him
-            return NotFound();
+            return View("Error", ErrorViewModelTypes.NotFound("user"));
         }
     }
 }
