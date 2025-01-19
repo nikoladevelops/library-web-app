@@ -38,7 +38,7 @@ namespace LibraryWebApp.Controllers
 
             if (book == null)
             {
-                return View("Error",ErrorHandlers.NotFound("book"));
+                return View("Error",ErrorViewModelTypes.NotFound("book"));
             }
 
             var vm = new BookDetailsVM
@@ -121,7 +121,7 @@ namespace LibraryWebApp.Controllers
             .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
-                return View("Error",ErrorHandlers.NotFound("book"));
+                return View("Error",ErrorViewModelTypes.NotFound("book"));
 
             var vm = new BookEditVM
             {
@@ -154,7 +154,7 @@ namespace LibraryWebApp.Controllers
 
             if (bookInDb == null)
             {
-                return View("Error",ErrorHandlers.NotFound("book"));
+                return View("Error",ErrorViewModelTypes.NotFound("book"));
             }
 
             ValidatePublicationDate(vm.PublicationDate);
@@ -215,7 +215,7 @@ namespace LibraryWebApp.Controllers
 
             if (book == null)
             {
-                return View("Error", ErrorHandlers.NotFound("book"));
+                return View("Error", ErrorViewModelTypes.NotFound("book"));
             }
 
             BookDeleteVM vm = new BookDeleteVM

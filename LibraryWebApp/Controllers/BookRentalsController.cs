@@ -41,12 +41,12 @@ namespace LibraryWebApp.Controllers
             Book? book = await _context.Books.FindAsync(bookId);
             if (book == null)
             {
-                return View("Error", ErrorHandlers.NotFound("book"));
+                return View("Error", ErrorViewModelTypes.NotFound("book"));
             }
 
             if (book.AvailableCount == 0)
             {
-                return View("Error", ErrorHandlers.NoAvailableBooks());
+                return View("Error", ErrorViewModelTypes.NoAvailableBooks());
             }
             
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -54,7 +54,7 @@ namespace LibraryWebApp.Controllers
 
             if (hasOverdueBooks)
             {
-                return View("Error",ErrorHandlers.OverdueBooks());
+                return View("Error",ErrorViewModelTypes.OverdueBooks());
             }
 
             book.AvailableCount -= 1;
@@ -90,7 +90,7 @@ namespace LibraryWebApp.Controllers
                 // If you are not the one who took the book, you cannot return it, unless you are an admin and you are fixing some sort of bug
                 if (rBook.UserId != userId && User.IsInRole(Globals.Roles.Admin) == false)
                 {
-                    return View("Error",ErrorHandlers.AccessDenied());
+                    return View("Error",ErrorViewModelTypes.AccessDenied());
                 }
 
                 var book = await _context.Books.FindAsync(rBook.BookId);
@@ -103,7 +103,7 @@ namespace LibraryWebApp.Controllers
                 return RedirectToAction(nameof(Details));
             }
 
-            return View("Error",ErrorHandlers.NotFound("book"));
+            return View("Error",ErrorViewModelTypes.NotFound("book"));
         }
     }
 }

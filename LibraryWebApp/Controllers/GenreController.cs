@@ -27,12 +27,13 @@ namespace LibraryWebApp.Controllers
             return View(await _context.Genres.ToListAsync());
         }
 
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Details(int id)
         {
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return View("Error", ErrorHandlers.NotFound("genre"));
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             return View(genre);
@@ -65,7 +66,7 @@ namespace LibraryWebApp.Controllers
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return View("Error", ErrorHandlers.NotFound("genre"));
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
             return View(genre);
         }
@@ -77,7 +78,7 @@ namespace LibraryWebApp.Controllers
         {
             if (_context.Genres.Any(g => g.Id == genre.Id) == false)
             {
-                return View("Error", ErrorHandlers.NotFound("genre"));
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             if (ModelState.IsValid)
@@ -98,7 +99,7 @@ namespace LibraryWebApp.Controllers
 
             if (genre == null)
             {
-                return View("Error", ErrorHandlers.NotFound("genre"));
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             return View(genre);

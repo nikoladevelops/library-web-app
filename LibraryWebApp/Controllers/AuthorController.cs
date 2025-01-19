@@ -27,12 +27,13 @@ namespace LibraryWebApp.Controllers
             return View(await _context.Authors.ToListAsync());
         }
 
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Details(int id)
         {
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return View("Error", ErrorHandlers.NotFound("author"));
+                return View("Error", ErrorViewModelTypes.NotFound("author"));
             }
 
             List<Book>? list = _context.Books.Where(b => b.Authors.Contains(author)).ToList();
@@ -73,7 +74,7 @@ namespace LibraryWebApp.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return View("Error", ErrorHandlers.NotFound("author"));
+                return View("Error", ErrorViewModelTypes.NotFound("author"));
             }
             return View(author);
         }
@@ -85,7 +86,7 @@ namespace LibraryWebApp.Controllers
         {
             if (_context.Authors.Any(a => a.Id == author.Id) == false) 
             {
-                return View("Error", ErrorHandlers.NotFound("author"));
+                return View("Error", ErrorViewModelTypes.NotFound("author"));
             }
 
             if (ModelState.IsValid)
@@ -105,7 +106,7 @@ namespace LibraryWebApp.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return View("Error", ErrorHandlers.NotFound("author"));
+                return View("Error", ErrorViewModelTypes.NotFound("author"));
             }
 
             return View(author);
