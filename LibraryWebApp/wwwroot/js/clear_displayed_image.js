@@ -1,4 +1,4 @@
-﻿function setupClearButton(imgTagId, clearButtonId, fileInputId, defaultCoverImage, hiddenFieldId) {
+﻿function setupClearButton(imgTagId, clearButtonId, fileInputId, defaultCoverImage, hiddenFieldId = null) {
     const imgTag = document.getElementById(imgTagId);
     const clearButton = document.getElementById(clearButtonId);
     const fileInput = document.getElementById(fileInputId);
@@ -14,9 +14,11 @@
         // Reset the image to the default
         imgTag.src = defaultCoverImage;
 
-        const hiddenField = document.getElementById(hiddenFieldId);
-        if (hiddenField) {
-            hiddenField.value = 'true'; 
+        if (hiddenFieldId != null) {
+            const hiddenField = document.getElementById(hiddenFieldId);
+            if (hiddenField) {
+                hiddenField.value = 'true';
+            }
         }
     });
 }

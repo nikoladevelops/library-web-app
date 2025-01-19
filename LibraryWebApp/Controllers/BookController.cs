@@ -98,7 +98,7 @@ namespace LibraryWebApp.Controllers
                         .ToListAsync(),
                 };
 
-                // Save a brand new cover image if it was provided
+                // Save a brand new cover image if it was provided (checks for null automatically)
                 await SaveBookCoverImage(book, coverImage);
 
                 _context.Books.Add(book);
@@ -178,7 +178,7 @@ namespace LibraryWebApp.Controllers
                         _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
                     }
 
-                    // Save a brand new cover image if it was provided
+                    // Save a brand new cover image if it was provided (checks for null automatically)
                     await SaveBookCoverImage(bookInDb, coverImage);
                 }
 
