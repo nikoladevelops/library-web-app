@@ -4,10 +4,10 @@ namespace LibraryWebApp.ViewModels
 {
     public class AdminPanelViewModel
     {
-        public List<BookSimplified>? TopBooks { get; set; }
-        public List<ApplicationUser>? TopUsers { get; set; }
-        public List<ApplicationUser>? ActiveUsers { get; set; }
-        public List<ApplicationUser>? InactiveUsers { get; set; }
+        public IEnumerable<BookSimplified>? TopBooks { get; set; }
+        public IEnumerable<ApplicationUser>? TopUsers { get; set; }
+        public IEnumerable<ApplicationUser>? ActiveUsers { get; set; }
+        public IEnumerable<ApplicationUser>? InactiveUsers { get; set; }
              
     }
 }

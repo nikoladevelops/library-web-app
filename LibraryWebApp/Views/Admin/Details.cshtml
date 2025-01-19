@@ -39,8 +39,15 @@
 <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
 <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="ReturnLate" asp-route-id="@Model.Id">Return Late Books</a>
 <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="ReturnAll" asp-route-id="@Model.Id">Return All Books</a>
-<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="BanAndUnbanUser" asp-route-id="@Model.Id">Ban/Unban user</a>
 
+@if (Model.IsBanned) 
+{
+    <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="UnbanUser" asp-route-id="@Model.Id">Unban user</a>
+}
+else
+{
+    <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="BanUser" asp-route-id="@Model.Id">Ban user</a>
+}
 
 
 

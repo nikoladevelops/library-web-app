@@ -11,23 +11,25 @@ using static LibraryWebApp.Controllers.HomeController;
 
 namespace LibraryWebApp.Controllers
 {
+    [Authorize(Roles = Globals.Roles.Admin)]
     public class AdminController : Controller
     {
 
         private readonly ApplicationDbContext _context;
         private readonly IBookCoverImageManager _bookCoverImageManager;
 
-
         public AdminController(ApplicationDbContext con, IBookCoverImageManager img)
         {
             _context = con;
             _bookCoverImageManager = img;
         }
+
         public async Task<IActionResult> Panel(AdminPanelViewModel? vm)
         {
             return View(vm);
         }
-        public async Task<IActionResult> TopBooks()
+
+        public async Task<IActionResult> GetTopBooks()
         {
             IQueryable<Book> books = _context.Books;
             books = books.Include(b => b.RentedBooks).OrderByDescending(b => b.RentedBooks.Count()).Take(10);
@@ -45,7 +47,7 @@ namespace LibraryWebApp.Controllers
             return View("Panel", viewModel);
 
         }
-        public async Task<IActionResult> TopUsers()
+        public async Task<IActionResult> GetTopUsers()
         {
             IQueryable<ApplicationUser> users = _context.Users;
             users = users.Include(b => b.RentedBooks).OrderByDescending(b => b.RentedBooks.Count()).Take(10);
@@ -55,18 +57,22 @@ namespace LibraryWebApp.Controllers
             };
              return View("Panel", viewModel);
         }
+
         public async Task<IActionResult> GetAllUsers()
         {
             IQueryable<ApplicationUser> users = _context.Users;
             var actives = GetActiveUsers();
-            var inactives = GetInactiveusers();
+            var inactives = GetInactiveUsers();
+
             var viewModel = new AdminPanelViewModel
             {
                 InactiveUsers = inactives.ToList(),
                 ActiveUsers = actives.ToList(),
             };
+
             return View("Panel", viewModel);
         }
+
         public IQueryable<ApplicationUser> GetActiveUsers()
         {
             var activeUsers = _context.Users
@@ -76,7 +82,8 @@ namespace LibraryWebApp.Controllers
             .Distinct(); 
             return activeUsers;
         }
-        public IQueryable<ApplicationUser> GetInactiveusers()
+
+        public IQueryable<ApplicationUser> GetInactiveUsers()
         {
             var inactiveUsers = _context.Users
               .Where(user => !_context.RentedBooks
@@ -84,22 +91,22 @@ namespace LibraryWebApp.Controllers
               .Distinct();
             return inactiveUsers;
         }
-        public async Task<IActionResult> Details(string? id)
+
+        public async Task<IActionResult> Details(string id)
         {
-            if (id == null)
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null)
             {
+                // TODO better message
                 return NotFound();
             }
-            ApplicationUser user = await _context.Users.FindAsync(id);
+
             return View(user);
         }
-        public async Task<IActionResult> Delete(string? id)
+
+        public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
@@ -109,34 +116,37 @@ namespace LibraryWebApp.Controllers
 
             return View(user);
         }
+
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeletePOST(string id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user != null)
+
+            if (user == null)
             {
-                _context.Users.Remove(user);
-            }
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Panel));
-        }
-        [Authorize(Roles = Globals.Roles.Admin)]
-        public async Task<IActionResult> Edit(string? id)
-        {
-            if (id == null)
-            {
+                // TODO better message
                 return NotFound();
             }
 
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Panel));
+        }
+
+        public async Task<IActionResult> Edit(string id)
+        {
             var user = await _context.Users.FindAsync(id);
+
             if (user == null)
             {
+                // TODO better message
                 return NotFound();
             }
 
             return View(user);
         }
-        [Authorize(Roles = Globals.Roles.Admin)]
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ApplicationUser u)
@@ -156,47 +166,69 @@ namespace LibraryWebApp.Controllers
 
         public async Task<IActionResult> ReturnAll(string id) 
         {
-                var rentedBooks = await _context.RentedBooks
-                                   .Where(b => b.UserId == id)
-                                   .ToListAsync();
+            var rentedBooks = await _context.RentedBooks
+                .Where(b => b.UserId == id && b.ReturnedAt == null)
+                .ToListAsync();
+
             foreach (var rentedBook in rentedBooks)
             {
-                if (rentedBook.ReturnedAt == null)
-                {
-                    var book = await _context.Books.FindAsync(rentedBook.BookId);
-                    book.AvailableCount += 1;
-                    rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
-                }
+                var book = await _context.Books.FindAsync(rentedBook.BookId);
+                book.AvailableCount += 1;
+                rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
             }
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Panel));
-
         }
+
         public async Task<IActionResult> ReturnLate(string id)
         {
+            var dateNow = DateOnly.FromDateTime(DateTime.Now);
+
+            // Get all rented books of a user with this id, which are not yet returned AND the deadline is in the past meaning they are late to returning them
             var rentedBooks = await _context.RentedBooks
-                                  .Where(b => b.UserId == id)
-                                  .ToListAsync();
+                .Where(b => b.UserId == id && b.ReturnedAt == null && b.Deadline < dateNow)
+                .ToListAsync();
+
             foreach (var rentedBook in rentedBooks)
             {
-
-                if (rentedBook.Deadline < DateOnly.FromDateTime(DateTime.Now) && rentedBook.ReturnedAt == null)
-                { 
-                    var book = await _context.Books.FindAsync(rentedBook.BookId);
-                    book.AvailableCount += 1;
-                    rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
-                }
+                var book = await _context.Books.FindAsync(rentedBook.BookId);
+                book.AvailableCount += 1;
+                rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
             }
+
             await _context.SaveChangesAsync(); 
             return RedirectToAction(nameof(Panel));
         }
-        public async Task<IActionResult> BanAndUnbanUser(string id)
+
+        public async Task<IActionResult> BanUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (!user.IsBanned) user.IsBanned = true;
-            else user.IsBanned = false;
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Panel));
+
+            if (user != null && user.IsBanned == false)
+            {
+                user.IsBanned = true;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Panel));
+            }
+
+            // TODO need an error message that no such user exists in order to ban him
+            return NotFound();
+        }
+
+        public async Task<IActionResult> UnbanUser(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user != null && user.IsBanned) 
+            {
+                user.IsBanned = false;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Panel));
+            }
+
+            // TODO need an error message that no such banned user exists in order to unban him
+            return NotFound();
         }
     }
 }
