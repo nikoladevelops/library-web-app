@@ -1,4 +1,5 @@
-﻿using LibraryWebApp.Models;
+﻿using LibraryWebApp.Helpers;
+using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -100,8 +101,7 @@ namespace LibraryWebApp.Controllers
                 {
                     if (user.IsBanned)
                     {
-                        // TODO you were banned custom error
-                        return NotFound();
+                        return View("Error",ErrorViewModelTypes.UserBanned());
                     }
 
                     return RedirectToAction("Index", "Home");
