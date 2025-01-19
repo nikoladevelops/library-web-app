@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using LibraryWebApp.Helpers;
 
 namespace LibraryWebApp.Controllers
 {
@@ -26,17 +27,13 @@ namespace LibraryWebApp.Controllers
             return View(await _context.Genres.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int? id)
+        [Authorize(Roles = Globals.Roles.Admin)]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             return View(genre);
@@ -51,29 +48,25 @@ namespace LibraryWebApp.Controllers
         [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GenreCreateViewModel genre)
+        public async Task<IActionResult> Create(Genre genre)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(new Genre { Id = genre.Id, Name = genre.Name });
+                _context.Add(genre);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(genre);
         }
 
-        [Authorize(Roles = Globals.Roles.Admin)]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
+        [Authorize(Roles = Globals.Roles.Admin)]
+        public async Task<IActionResult> Edit(int id)
+        {
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
             return View(genre);
         }
@@ -83,9 +76,9 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Genre genre)
         {
-            if (genre == null)
+            if (_context.Genres.Any(g => g.Id == genre.Id) == false)
             {
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             if (ModelState.IsValid)
@@ -98,19 +91,15 @@ namespace LibraryWebApp.Controllers
             return View(genre);
         }
 
-        [Authorize(Roles = Globals.Roles.Admin)]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var genre = await _context.Genres
-                .FindAsync(id);
+        [Authorize(Roles = Globals.Roles.Admin)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var genre = await _context.Genres.FindAsync(id);
+
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("genre"));
             }
 
             return View(genre);

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryWebApp.ViewModels
 {
-    public class LoginViewModel
+    public class LoginVM
     {
         public bool IsBanned { get; set; }
         [StringLength(30)]

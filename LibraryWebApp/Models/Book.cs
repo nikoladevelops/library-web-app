@@ -23,9 +23,9 @@ namespace LibraryWebApp.Models
         [DisplayName("Cover Image")]
         public string? CoverImageUrl { get; set; }
 
-        public ICollection<Genre>? Genres { get; set; }
+        public ICollection<Genre> Genres { get; set; }
         
-        public ICollection<Author>? Authors { get; set; }
+        public ICollection<Author> Authors { get; set; }
 
         public ICollection<RentedBook>? RentedBooks { get; set; }
     }

@@ -14,7 +14,6 @@ namespace LibraryWebApp.Controllers
     [Authorize(Roles = Globals.Roles.Admin)]
     public class AdminController : Controller
     {
-
         private readonly ApplicationDbContext _context;
         private readonly IBookCoverImageManager _bookCoverImageManager;
 
@@ -144,24 +143,43 @@ namespace LibraryWebApp.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            var vm = new EditAppUserVM
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            return View(vm);
         }
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ApplicationUser u)
+        public async Task<IActionResult> Edit(EditAppUserVM vm)
         {
-            var user = await _context.Users.FindAsync(u.Id);
+            var user = await _context.Users.FindAsync(vm.Id);
+
+            if (user == null) 
+            {
+                // TODO better error message - user not found view
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                _context.Entry(user).CurrentValues.SetValues(u); 
+                user.UserName = vm.UserName; 
+                user.NormalizedUserName = vm.UserName.ToUpper();
+                user.Email = vm.Email;
+                user.NormalizedEmail = vm.Email.ToUpper();
+                user.PhoneNumber = vm.PhoneNumber;
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Panel));
             }
 
-            return View(user);
+            return View(vm);
         }
 
         public async Task<IActionResult> ReturnAll(string id) 
@@ -170,11 +188,13 @@ namespace LibraryWebApp.Controllers
                 .Where(b => b.UserId == id && b.ReturnedAt == null)
                 .ToListAsync();
 
+            var dateNow = DateOnly.FromDateTime(DateTime.Now);
+
             foreach (var rentedBook in rentedBooks)
             {
                 var book = await _context.Books.FindAsync(rentedBook.BookId);
                 book.AvailableCount += 1;
-                rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
+                rentedBook.ReturnedAt = dateNow;
             }
 
             await _context.SaveChangesAsync();
@@ -194,7 +214,7 @@ namespace LibraryWebApp.Controllers
             {
                 var book = await _context.Books.FindAsync(rentedBook.BookId);
                 book.AvailableCount += 1;
-                rentedBook.ReturnedAt = DateOnly.FromDateTime(DateTime.Now);
+                rentedBook.ReturnedAt = dateNow;
             }
 
             await _context.SaveChangesAsync(); 

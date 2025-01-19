@@ -1,4 +1,4 @@
-﻿@model Book
+﻿@model BookEditVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,10 +14,25 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CoverImageUrl" class="form-control" />
+            <input type="hidden" asp-for="DefaultCoverImageUrl" />
+            <input id="is-book-cover-changed" type="hidden" asp-for="IsBookCoverChanged" class="form-control" />
 
+            <div class="form-group" style="max-width: 300px;">
+                <label class="control-label">Cover Image</label>
+                <div class="card border border-primary rounded">
+                    <div id="image-container" class="card-img-container" style="width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; overflow: hidden; background-color: #f8f9fa;">
+                        <img id="cover-image" src="@(Model.CoverImageUrl ?? Model.DefaultCoverImageUrl)"
+                             style="max-width: 100%; max-height: 100%; object-fit: scale-down;"
+                             alt="Book Cover">
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 <label class="control-label"></label>
-                <input type="file" name="coverImage" class="form-control" />
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input id="file-input" type="file" name="coverImage" class="form-control" accept="image/*" />
+                    <button id="clear-button" type="button" class="btn btn-danger">Clear</button>
+                </div>
             </div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
@@ -40,6 +55,18 @@
                 <span asp-validation-for="TotalCount" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="SelectedGenreIDs" class="control-label"></label>
+                <select asp-for="SelectedGenreIDs" asp-items="@Model.AvailableGenres" class="form-select" multiple>
+                </select>
+                <span asp-validation-for="SelectedGenreIDs" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SelectedAuthorIDs" class="control-label"></label>
+                <select asp-for="SelectedAuthorIDs" asp-items="@Model.AvailableAuthors" class="form-select" multiple>
+                </select>
+                <span asp-validation-for="SelectedAuthorIDs" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
@@ -52,4 +79,28 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/display_uploaded_file_image.js"></script>
+    <script src="~/js/clear_displayed_image.js"></script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+            setupImagePreview('file-input', 'cover-image');
+
+            const fileInput = document.getElementById('file-input');
+            const hiddenField = document.getElementById('is-book-cover-changed');
+
+            if (fileInput && hiddenField) {
+                fileInput.addEventListener('change', function () {
+                    hiddenField.value = 'true'; // Handle cases where a new cover image is uploaded
+                });
+            }
+
+            // Correctly pass as a JavaScript string
+            const defaultCoverImageUrl = "@(Model.DefaultCoverImageUrl.Replace("\\", "\\\\").Replace("\"", "\\\""))";
+            setupClearButton('cover-image', 'clear-button', 'file-input', defaultCoverImageUrl, 'is-book-cover-changed');
+        });
+
+    </script>
+
+
 }

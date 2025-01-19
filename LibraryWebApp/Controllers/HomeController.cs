@@ -71,12 +71,12 @@ namespace LibraryWebApp.Controllers
                     case SearchBy.Author:
                         books = books
                         .Include(b => b.Authors)
-                        .Where(b => b.Authors.Any(a => a.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+                        .Where(b => b.Authors.Any(a => a.Name.Contains(searchTerm)));
                         break;
                     case SearchBy.Genre:
                         books = books
                        .Include(b => b.Genres)
-                       .Where(b => b.Genres.Any(g => g.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+                       .Where(b => b.Genres.Any(g => g.Name.Contains(searchTerm)));
                         break;
                 }
             }
@@ -159,7 +159,7 @@ namespace LibraryWebApp.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }

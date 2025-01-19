@@ -13,11 +13,11 @@ namespace LibraryWebApp.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um, ApplicationDbContext con)
+        public AccountController(SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _signInManager = signIn;
-            _userManager = um;
-            _context = con;
+            _userManager = userManager;
+            _context = context;
         }
 
         public IActionResult Register()
@@ -32,7 +32,7 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
+        public async Task<IActionResult> Register(RegisterVM registerViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -82,32 +82,37 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginVM vm)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.Username);
-            if (user == null)
-            {
-                model.IsBanned = false;
-            }
-            else
-            {
-                model.IsBanned = user.IsBanned;
-            }
-            if (model.IsBanned)
-            {
-                return NotFound();
-                // add error here
-            }
             if (ModelState.IsValid)
             {
-                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == vm.Username);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(vm);
+
+                }
+            
+                var res = await _signInManager.PasswordSignInAsync(vm.Username, vm.Password, false, false);
 
                 if (res.Succeeded)
                 {
+                    if (user.IsBanned)
+                    {
+                        // TODO you were banned custom error
+                        return NotFound();
+                    }
+
                     return RedirectToAction("Index", "Home");
                 }
+                else 
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                }
             }
-            return RedirectToAction(nameof(Login));
+
+            return View(vm);
         }
 
         [Authorize]
