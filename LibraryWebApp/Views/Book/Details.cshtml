@@ -1,4 +1,4 @@
-﻿@model Book
+﻿@model BookDetailsVM
 
 @{
     ViewData["Title"] = "Details";
@@ -9,7 +9,8 @@
 <div>
     <h4>Book</h4>
     <hr />
-        <img src="@(Model.CoverImageUrl == null ? ViewData["NoBookCoverImage"] : Model.CoverImageUrl)" alt="Cover Image" width="300" height="300" />
+        <input type="hidden" asp-for="DefaultCoverImageUrl" />
+        <img src="@(Model.CoverImageUrl == null ? Model.DefaultCoverImageUrl : Model.CoverImageUrl)" alt="Cover Image" width="300" height="300" />
     <dl class="row">
         <dt class="col-sm-2">
             <label asp-for="Title"></label>

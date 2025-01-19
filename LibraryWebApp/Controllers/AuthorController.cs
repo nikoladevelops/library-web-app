@@ -23,13 +23,8 @@ namespace LibraryWebApp.Controllers
             return View(await _context.Authors.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
@@ -38,7 +33,7 @@ namespace LibraryWebApp.Controllers
 
             List<Book>? list = _context.Books.Where(b => b.Authors.Contains(author)).ToList();
 
-            AuthorDetailsViewModel model = new AuthorDetailsViewModel
+            AuthorDetailsVM model = new AuthorDetailsVM
             {
                 Author = author,
                 Books = list
@@ -54,24 +49,19 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AuthorCreateViewModel author)
+        public async Task<IActionResult> Create(Author author)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(new Author { Id = author.Id, Name = author.Name });
+                _context.Add(author);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(author);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
@@ -84,7 +74,7 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Author author)
         {
-            if (author == null)
+            if (_context.Authors.Any(a => a.Id == author.Id) == false) 
             {
                 return NotFound();
             }
@@ -99,13 +89,8 @@ namespace LibraryWebApp.Controllers
             return View(author);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {

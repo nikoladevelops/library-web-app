@@ -1,4 +1,4 @@
-﻿@model BookCreateViewModel
+﻿@model BookCreateVM
 
 @{
     ViewData["Title"] = "Create";
@@ -13,6 +13,7 @@
     <div class="col-md-4">
         <form asp-controller="Book" asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="DefaultCoverImageUrl" />
             <div class="form-group">
                 <label class="control-label"></label>
                 <input type="file" name="coverImage" class="form-control" />

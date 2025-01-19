@@ -2,7 +2,7 @@
 
 namespace LibraryWebApp.ViewModels
 {
-    public class RegisterViewModel
+    public class RegisterVM
     {
 
         public string Username { get; set; }

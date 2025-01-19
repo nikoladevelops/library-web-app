@@ -1,4 +1,4 @@
-﻿@model BookUpdateViewModel
+﻿@model BookEditVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,6 +14,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CoverImageUrl" class="form-control" />
+            <input type="hidden" asp-for="DefaultCoverImageUrl" />
 
             <div class="form-group">
                 <label class="control-label"></label>
@@ -42,22 +43,12 @@
             <div class="form-group">
                 <label asp-for="SelectedGenreIDs" class="control-label"></label>
                 <select asp-for="SelectedGenreIDs" asp-items="@Model.AvailableGenres" class="form-select" multiple>
-                    <option disabled>--Select Genre--</option>
-                    @foreach (Genre genre in Model.PrevSelectedGenres)
-                    {
-                        <option selected value="@genre.Id">@genre.Name</option>
-                    }
                 </select>
                 <span asp-validation-for="SelectedGenreIDs" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SelectedAuthorIDs" class="control-label"></label>
                 <select asp-for="SelectedAuthorIDs" asp-items="@Model.AvailableAuthors" class="form-select" multiple>
-                    <option disabled>--Select Author--</option>
-                    @foreach (Author author in Model.PrevSelectedAuthors)
-                    {
-                        <option selected value="@author.Id">@author.Name</option>
-                    }
                 </select>
                 <span asp-validation-for="SelectedAuthorIDs" class="text-danger"></span>
             </div>

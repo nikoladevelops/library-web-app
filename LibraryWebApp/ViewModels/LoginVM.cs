@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryWebApp.ViewModels
 {
-    public class LoginViewModel
+    public class LoginVM
     {
         [StringLength(30)]
         [DisplayName("Username")]

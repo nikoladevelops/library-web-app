@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
-using LibraryWebApp.ViewModels;
 using LibraryWebApp.Helpers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using LibraryWebApp.ViewModels.BookViewModels;
 
 namespace LibraryWebApp.Controllers
 {
@@ -29,224 +28,198 @@ namespace LibraryWebApp.Controllers
             return View(allBooks);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+            .Include(b => b.Authors)
+            .Include(b => b.Genres)
+            .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            // TODO should use viewmodels instead
-            ViewData["NoBookCoverImage"] = _bookCoverImageManager.DefaultNoBookCoverImagePath;
-
-            return View(book);
-        }
-
-        public IActionResult Create()
-        {
-            return View(new BookCreateViewModel
-            {
-                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
-                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
-            });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BookCreateViewModel data, IFormFile? coverImage)
-        {
-            ValidatePublicationDate(data.PublicationDate);
-
-            if (ModelState.IsValid)
-            {
-                Book book = new Book
-                {
-                    Title = data.Title,
-                    AvailableCount = data.TotalCount,
-                    TotalCount = data.TotalCount,
-                    PublicationDate = data.PublicationDate,
-                    Authors = _context.Authors.
-                        Where(author => data.SelectedAuthorIDs.
-                            Contains(author.Id)).
-                        Include(author => author.Books).
-                        ToList(),
-                    Genres = _context.Genres.
-                        Where(genre => data.SelectedGenreIDs.
-                            Contains(genre.Id)).
-                        Include(genre => genre.Books).
-                        ToList(),
-                };
-                await SaveBookCoverImage(book, coverImage);
-
-                foreach (var id in data.SelectedAuthorIDs)
-                {
-                    Author author = await _context.Authors.FindAsync(id);
-                    author.Books.Add(book);
-                    _context.Update(author);
-                }
-                foreach (var id in data.SelectedGenreIDs)
-                {
-                    Genre genre = await _context.Genres.FindAsync(id);
-                    genre.Books.Add(book);
-                    _context.Update(genre);
-                }
-
-                _context.Add(book);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(data);
-        }
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var book = await _context.Books.Include(book => book.Genres).Include(book => book.Authors).FirstOrDefaultAsync(book => book.Id == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return View(new BookUpdateViewModel
+            var vm = new BookDetailsVM
             {
                 Id = book.Id,
                 Title = book.Title,
                 PublicationDate = book.PublicationDate,
                 TotalCount = book.TotalCount,
                 AvailableCount = book.AvailableCount,
-                AvailableAuthors = new MultiSelectList(_context.Authors.Where(author => !book.Authors.Contains(author)), "Id", "Name"),
-                AvailableGenres = new MultiSelectList(_context.Genres.Where(genre => !book.Genres.Contains(genre)), "Id", "Name"),
-                PrevSelectedAuthors = _context.Authors.Where(author => book.Authors.Contains(author)).ToList(),
-                PrevSelectedGenres = _context.Genres.Where(genre => book.Genres.Contains(genre)).ToList(),
-            });
+                CoverImageUrl = book.CoverImageUrl,
+                DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
+                SelectedAuthorIDs = book.Authors.Select(a => a.Id).ToList(),
+                SelectedGenreIDs = book.Genres.Select(g => g.Id).ToList(),
+                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
+            };
+
+            return View(vm);
+        }
+
+        public IActionResult Create()
+        {
+            var vm = new BookCreateVM
+            {
+                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
+                DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
+            };
+
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(BookUpdateViewModel data, IFormFile? coverImage)
+        public async Task<IActionResult> Create(BookCreateVM vm, IFormFile? coverImage)
         {
-            var bookInDb = await _context.Books.FindAsync(data.Id);
+            ValidatePublicationDate(vm.PublicationDate);
+            ValidateBookHasAuthors(vm.SelectedAuthorIDs);
+            ValidateBookHasGenres(vm.SelectedGenreIDs);
+
+            if (ModelState.IsValid)
+            {
+                var book = new Book
+                {
+                    Title = vm.Title,
+                    TotalCount = vm.TotalCount,
+                    AvailableCount = vm.TotalCount,
+                    PublicationDate = vm.PublicationDate,
+                    Authors = await _context.Authors
+                        .Where(a => vm.SelectedAuthorIDs.Contains(a.Id))
+                        .ToListAsync(),
+                    Genres = await _context.Genres
+                        .Where(g => vm.SelectedGenreIDs.Contains(g.Id))
+                        .ToListAsync(),
+                };
+
+                // Save a brand new cover image if it was provided
+                await SaveBookCoverImage(book, coverImage);
+
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            vm.AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name");
+            vm.AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name");
+            
+            return View(vm);
+        }
+        public async Task<IActionResult> Edit(int id)
+        {
+            var book = await _context.Books
+            .Include(b => b.Authors)
+            .Include(b => b.Genres)
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+                return NotFound();
+
+            var vm = new BookEditVM
+            {
+                Id = book.Id,
+                Title = book.Title,
+                PublicationDate = book.PublicationDate,
+                TotalCount = book.TotalCount,
+                AvailableCount = book.AvailableCount,
+                CoverImageUrl = book.CoverImageUrl,
+                DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
+                SelectedAuthorIDs = book.Authors.Select(a => a.Id).ToList(),
+                SelectedGenreIDs = book.Genres.Select(g => g.Id).ToList(),
+                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(BookEditVM vm, IFormFile? coverImage)
+        {
+            var bookInDb = await _context.Books
+                .Include(b => b.Authors)
+                .Include(b => b.Genres)
+                .FirstOrDefaultAsync(b => b.Id == vm.Id);
 
             if (bookInDb == null)
             {
                 return NotFound();
             }
 
-            ValidatePublicationDate(data.PublicationDate);
+            ValidatePublicationDate(vm.PublicationDate);
+            ValidateBookHasAuthors(vm.SelectedAuthorIDs);
+            ValidateBookHasGenres(vm.SelectedGenreIDs);
 
             if (ModelState.IsValid)
             {
-                // If the book had a cover image already saved in the database, delete it
-                if (bookInDb.CoverImageUrl != null)
+                bookInDb.Title = vm.Title;
+                bookInDb.TotalCount = vm.TotalCount;
+                bookInDb.AvailableCount = vm.AvailableCount;
+                bookInDb.PublicationDate = vm.PublicationDate;
+
+                // Always delete old cover image if it exists
+                if (!string.IsNullOrEmpty(bookInDb.CoverImageUrl))
                 {
-                    // Deletes the actual file
                     _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
                 }
 
-                // Now book has no bookInDbCoverImageUrl which is good.
-
-                Book book = new Book
-                {
-                    Id = data.Id,
-                    CoverImageUrl = data.CoverImageUrl,
-                    Title = data.Title,
-                    TotalCount = data.TotalCount,
-                    AvailableCount = data.AvailableCount,
-                    PublicationDate = data.PublicationDate,
-                    Authors = _context.Authors.
-                        Where(author => data.SelectedAuthorIDs.
-                            Contains(author.Id)).
-                        Include(author => author.Books).
-                        ToList(),
-                    Genres = _context.Genres.
-                        Where(genre => data.SelectedGenreIDs.
-                            Contains(genre.Id)).
-                        Include(genre => genre.Books).
-                        ToList(),
-                };
-
-                _context.Entry(bookInDb).CurrentValues.SetValues(book); // This also copied the old book cover image url
-
-                foreach (Author author in _context.Authors)
-                {
-                    if (author.Books == null) continue;
-
-                    if (author.Books.Contains(bookInDb))
-                    {
-                        if (data.SelectedAuthorIDs.Contains(author.Id)) continue;
-                        else
-                        {
-                            author.Books.Remove(bookInDb);
-                        }
-                    }
-                    else
-                    {
-                        if (!data.SelectedAuthorIDs.Contains(author.Id)) continue;
-                        else
-                        {
-                            author.Books.Add(bookInDb);
-                        }
-                    }
-                }
-                foreach (Genre genre in _context.Genres)
-                {
-                    if (genre.Books == null) continue;
-
-                    if (genre.Books.Contains(bookInDb))
-                    {
-                        if (data.SelectedGenreIDs.Contains(genre.Id)) continue;
-                        else
-                        {
-                            genre.Books.Remove(bookInDb);
-                        }
-                    }
-                    else
-                    {
-                        if (!data.SelectedGenreIDs.Contains(genre.Id)) continue;
-                        else
-                        {
-                            genre.Books.Add(bookInDb);
-                        }
-                    }
-                }
-
+                // Save a brand new cover image if it was provided
                 await SaveBookCoverImage(bookInDb, coverImage);
+
+                var selectedAuthors = await _context.Authors
+                    .Where(a => vm.SelectedAuthorIDs.Contains(a.Id))
+                    .ToListAsync();
+
+                bookInDb.Authors = selectedAuthors;
+
+                var selectedGenres = await _context.Genres
+                    .Where(g => vm.SelectedGenreIDs.Contains(g.Id))
+                    .ToListAsync();
+
+                bookInDb.Genres = selectedGenres;
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(data);
+            vm.AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name");
+            vm.AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name");
+
+            return View(vm);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(b => b.Authors)
+                .Include(b => b.Genres)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            // TODO should use viewmodels instead
-            ViewData["NoBookCoverImage"] = _bookCoverImageManager.DefaultNoBookCoverImagePath;
+            BookDeleteVM vm = new BookDeleteVM
+            {
+                Id = book.Id,
+                Title = book.Title,
+                PublicationDate = book.PublicationDate,
+                TotalCount = book.TotalCount,
+                AvailableCount = book.AvailableCount,
+                CoverImageUrl = book.CoverImageUrl,
+                DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
+                SelectedAuthorIDs = book.Authors.Select(a => a.Id).ToList(),
+                SelectedGenreIDs = book.Genres.Select(g => g.Id).ToList(),
+                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
+                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
+            };
 
-            return View(book);
+            return View(vm);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -268,6 +241,34 @@ namespace LibraryWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Validates that the book has at least one author selected
+        /// </summary>
+        /// <param name="authorIDs"></param>
+        private void ValidateBookHasAuthors(IEnumerable<int> authorIDs) 
+        {
+            if (authorIDs == null || !authorIDs.Any())
+            {
+                ModelState.AddModelError("SelectedAuthorIDs", "You must select at least one author.");
+            }
+        }
+
+        /// <summary>
+        /// Validates that the book has at least one genre selected
+        /// </summary>
+        /// <param name="genreIDs"></param>
+        private void ValidateBookHasGenres(IEnumerable<int> genreIDs)
+        {
+            if (genreIDs == null || !genreIDs.Any())
+            {
+                ModelState.AddModelError("SelectedGenreIDs", "You must select at least one genre.");
+            }
+        }
+
+        /// <summary>
+        /// Validates publication date to ensure that it is not in the future
+        /// </summary>
+        /// <param name="publicationDate"></param>
         private void ValidatePublicationDate(DateOnly publicationDate)
         {
             if (publicationDate > DateOnly.FromDateTime(DateTime.Today))
