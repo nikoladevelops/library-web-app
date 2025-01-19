@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using LibraryWebApp.Helpers;
 
 namespace LibraryWebApp.Controllers
 {
@@ -31,7 +32,7 @@ namespace LibraryWebApp.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("author"));
             }
 
             List<Book>? list = _context.Books.Where(b => b.Authors.Contains(author)).ToList();
@@ -72,7 +73,7 @@ namespace LibraryWebApp.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("author"));
             }
             return View(author);
         }
@@ -84,7 +85,7 @@ namespace LibraryWebApp.Controllers
         {
             if (_context.Authors.Any(a => a.Id == author.Id) == false) 
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("author"));
             }
 
             if (ModelState.IsValid)
@@ -104,7 +105,7 @@ namespace LibraryWebApp.Controllers
             var author = await _context.Authors.FindAsync(id);
             if (author == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("author"));
             }
 
             return View(author);

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebApp.Models;
 using LibraryWebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using LibraryWebApp.Helpers;
 
 namespace LibraryWebApp.Controllers
 {
@@ -31,7 +32,7 @@ namespace LibraryWebApp.Controllers
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("genre"));
             }
 
             return View(genre);
@@ -64,7 +65,7 @@ namespace LibraryWebApp.Controllers
             var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("genre"));
             }
             return View(genre);
         }
@@ -76,7 +77,7 @@ namespace LibraryWebApp.Controllers
         {
             if (_context.Genres.Any(g => g.Id == genre.Id) == false)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("genre"));
             }
 
             if (ModelState.IsValid)
@@ -97,7 +98,7 @@ namespace LibraryWebApp.Controllers
 
             if (genre == null)
             {
-                return NotFound();
+                return View("Error", ErrorHandlers.NotFound("genre"));
             }
 
             return View(genre);
