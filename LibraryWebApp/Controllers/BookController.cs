@@ -169,17 +169,18 @@ namespace LibraryWebApp.Controllers
                 bookInDb.AvailableCount = vm.AvailableCount;
                 bookInDb.PublicationDate = vm.PublicationDate;
 
-                // Always delete old cover image if it exists
-                if (!string.IsNullOrEmpty(bookInDb.CoverImageUrl))
-
-                // If the book had a cover image already saved in the database, delete it
-                if (bookInDb.CoverImageUrl != null)
+                // Only if the user made some changes to the book cover image, then we need to handle it
+                if (vm.IsBookCoverChanged) 
                 {
-                    _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
-                }
+                    // If the book had a cover image already saved in the database, delete it
+                    if (bookInDb.CoverImageUrl != null)
+                    {
+                        _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
+                    }
 
-                // Save a brand new cover image if it was provided
-                await SaveBookCoverImage(bookInDb, coverImage);
+                    // Save a brand new cover image if it was provided
+                    await SaveBookCoverImage(bookInDb, coverImage);
+                }
 
                 var selectedAuthors = await _context.Authors
                     .Where(a => vm.SelectedAuthorIDs.Contains(a.Id))
