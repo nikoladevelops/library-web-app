@@ -141,6 +141,7 @@ namespace LibraryWebApp.Helpers
 
                 var user = new ApplicationUser
                 {
+                    IsBanned = false,
                     UserName = username,
                     Email = email
                 };

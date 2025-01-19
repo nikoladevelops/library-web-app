@@ -5,6 +5,7 @@ namespace LibraryWebApp.ViewModels
 {
     public class LoginViewModel
     {
+        public bool IsBanned { get; set; }
         [StringLength(30)]
         [DisplayName("Username")]
         public string Username { get; set; }

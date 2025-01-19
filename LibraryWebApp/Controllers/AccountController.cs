@@ -55,8 +55,10 @@ namespace LibraryWebApp.Controllers
                 // Create a new user
                 ApplicationUser user = new ApplicationUser
                 {
+                    IsBanned = false,
                     UserName = registerViewModel.Username,
-                    Email = registerViewModel.Email
+                    Email = registerViewModel.Email,
+                    PhoneNumber = registerViewModel.PhoneNumber
                 };
 
                 var result = await _userManager.CreateAsync(user, registerViewModel.Password);
@@ -82,6 +84,20 @@ namespace LibraryWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.Username);
+            if (user == null)
+            {
+                model.IsBanned = false;
+            }
+            else
+            {
+                model.IsBanned = user.IsBanned;
+            }
+            if (model.IsBanned)
+            {
+                return NotFound();
+                // add error here
+            }
             if (ModelState.IsValid)
             {
                 var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);

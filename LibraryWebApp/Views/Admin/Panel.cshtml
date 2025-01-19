@@ -1,0 +1,106 @@
+﻿@model AdminPanelViewModel
+@{
+}
+<div class="container">
+    <div class="d-flex justify-content-start mb-3">
+        <a class="btn btn-sm btn-dark me-2" asp-controller="Admin" asp-action="TopBooks">Top Books</a>
+        <a class="btn btn-sm btn-dark me-2" asp-controller="Admin" asp-action="TopUsers">Top Users</a>
+        <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="GetAllUsers">All Users</a>
+    </div>
+
+    @if (Model.TopBooks != null)
+    {
+        <div class="container py-3">
+            <div class="row g-4">
+                @foreach (var book in Model.TopBooks)
+                {
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border border-primary rounded h-100">
+                            <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                                <img src="@book.CoverImageUrl" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="Book Cover">
+                            </div>
+                            <div class="card-body d-flex flex-column justify-content-end text-center">
+                                <h6 class="card-title">@book.Title</h6>
+                            </div>
+                            <div class="card-footer bg-light text-center">
+                                <a class="btn btn-sm btn-dark" asp-controller="Book" asp-action="Details" asp-route-id="@book.Id">SHOW</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.TopUsers != null)
+    {
+        <div class="container py-3">
+            <div class="row g-4">
+                @foreach (var user in Model.TopUsers)
+                {
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border border-primary rounded h-100">
+                            <div class="card-body d-flex flex-column justify-content-end text-center">
+                                <h6 class="card-title">@user.UserName</h6>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.InactiveUsers != null || Model.ActiveUsers != null)
+    {
+        if (Model.ActiveUsers != null)
+        {
+            <p>Active Users</p>
+            <div class="container py-3">
+                <div class="row g-4">
+                    @foreach (var user in Model.ActiveUsers)
+                    {
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="card border border-primary rounded h-100">
+                                <div class="card-body d-flex flex-column justify-content-end text-center">
+                                    <h6 class="card-title">@user.UserName</h6>
+                                </div>
+                                <div class="card-footer bg-light text-center">
+                                    <div class="d-flex justify-content-around">
+                                        <div class="d-flex flex-column gap-2">
+                                            <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="Details" asp-route-id="@user.Id">Manage</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        if(Model.InactiveUsers != null)
+        {
+            <p> Inactive Users</p>
+            <div class="container py-3">
+                <div class="row g-4">
+                    @foreach (var user in Model.InactiveUsers)
+                    {
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="card border border-primary rounded h-100">
+                                <div class="card-body d-flex flex-column justify-content-end text-center">
+                                    <h6 class="card-title">@user.UserName</h6>
+                                </div>
+                                <div class="card-footer bg-light text-center">
+                                    <div class="d-flex justify-content-around">
+                                        <div class="d-flex flex-column gap-2">
+                                            <a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="Details" asp-route-id="@user.Id">Manage</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

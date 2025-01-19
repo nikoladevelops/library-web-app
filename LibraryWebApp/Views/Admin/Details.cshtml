@@ -1,0 +1,47 @@
+﻿@model ApplicationUser
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="UserName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Model.UserName
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Email"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Email
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="IsBanned"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Model.IsBanned
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="PhoneNumber"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Model.PhoneNumber
+        </dd>
+    </dl>
+</div>
+<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="ReturnLate" asp-route-id="@Model.Id">Return Late Books</a>
+<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="ReturnAll" asp-route-id="@Model.Id">Return All Books</a>
+<a class="btn btn-sm btn-dark" asp-controller="Admin" asp-action="BanAndUnbanUser" asp-route-id="@Model.Id">Ban/Unban user</a>
+
+
+
+
+

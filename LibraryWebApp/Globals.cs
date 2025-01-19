@@ -38,7 +38,5 @@
         /// </summary>
         public static int RentDeadlineWarningPeriod { get => 3; }
 
-
-
     }
 }
