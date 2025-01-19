@@ -13,11 +13,11 @@ namespace LibraryWebApp.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um, ApplicationDbContext con)
+        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _signInManager = signIn;
-            _userManager = um;
-            _context = con;
+            _userManager = userManager;
+            _context = context;
         }
 
         public IActionResult Register()
@@ -32,7 +32,23 @@ namespace LibraryWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
+        public async Task<IActionResult> Login(LoginVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+
+                if (res.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterVM registerViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -76,22 +92,6 @@ namespace LibraryWebApp.Controllers
             }
 
             return View(registerViewModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
-
-                if (res.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            return RedirectToAction(nameof(Login));
         }
 
         [Authorize]
