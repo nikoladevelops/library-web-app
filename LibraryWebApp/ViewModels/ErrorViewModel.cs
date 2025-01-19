@@ -2,8 +2,7 @@ namespace LibraryWebApp.ViewModels
 {
     public class ErrorViewModel
     {
-        public string? RequestId { get; set; }
-
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public required string StatusCode { get; set; }
+        public required string Description { get; set; }
     }
 }

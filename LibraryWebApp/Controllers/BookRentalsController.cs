@@ -1,4 +1,5 @@
-﻿using LibraryWebApp.Models;
+﻿using LibraryWebApp.Helpers;
+using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,15 +41,12 @@ namespace LibraryWebApp.Controllers
             Book? book = await _context.Books.FindAsync(bookId);
             if (book == null)
             {
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NotFound("book"));
             }
 
             if (book.AvailableCount == 0)
             {
-                // TODO maybe a better custom error view - the book cannot be rented, no available copies
-                // or maybe a ModelState error and redirect to the book details page?
-
-                return NotFound();
+                return View("Error", ErrorViewModelTypes.NoAvailableBooks());
             }
             
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -56,8 +54,7 @@ namespace LibraryWebApp.Controllers
 
             if (hasOverdueBooks)
             {
-                // TODO add an error page or redirect to proper place, due to user having unreturned books that are overdue
-                return NotFound();
+                return View("Error",ErrorViewModelTypes.OverdueBooks());
             }
 
             book.AvailableCount -= 1;
@@ -93,8 +90,7 @@ namespace LibraryWebApp.Controllers
                 // If you are not the one who took the book, you cannot return it, unless you are an admin and you are fixing some sort of bug
                 if (rBook.UserId != userId && User.IsInRole(Globals.Roles.Admin) == false)
                 {
-                    // TODO better error message
-                    return NotFound();
+                    return View("Error",ErrorViewModelTypes.AccessDenied());
                 }
 
                 var book = await _context.Books.FindAsync(rBook.BookId);
@@ -107,8 +103,7 @@ namespace LibraryWebApp.Controllers
                 return RedirectToAction(nameof(Details));
             }
 
-            // TODO a better error message - the book to return was not found
-            return NotFound();
+            return View("Error",ErrorViewModelTypes.NotFound("book"));
         }
     }
 }
