@@ -4,57 +4,74 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Book</h4>
-    <hr />
-        <input type="hidden" asp-for="DefaultCoverImageUrl" />
-        <img src="@(Model.CoverImageUrl == null ? Model.DefaultCoverImageUrl : Model.CoverImageUrl)" alt="Cover Image" width="300" height="300" />
-    <dl class="row">
-        <dt class="col-sm-2">
-            <label asp-for="Title"></label>
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Title
-        </dd>
-        <dt class="col-sm-2">
-            <label asp-for="PublicationDate"></label>
-        </dt>
-        <dd class="col-sm-10">
-            @Model.PublicationDate.ToString(Globals.DateFormat)
-        </dd>
-        <dt class="col-sm-2">
-            <label asp-for="AvailableCount"></label>
-        </dt>
-        <dd class="col-sm-10">
-            @Model.AvailableCount
-        </dd>
-        <dt class="col-sm-2">
-            <label asp-for="TotalCount"></label>
-        </dt>
-        <dd class="col-sm-10">
-            @Model.TotalCount
-        </dd>
-    </dl>
-</div>
-
-@if (@User.Identity.IsAuthenticated)
-{
-    <form asp-controller="BookRentals" asp-action="Rent">
-        <input type="hidden" name="bookId" value="@Model?.Id" />
-    
-        <p>You can keep the book for @Globals.BookRentDayLimit days max</p>
-        <p>Return date: @DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit).ToString(Globals.DateFormat)</p>
-
-        <div class="form-group mt-2">
-            <input type="submit" value="Rent Book" class="btn btn-primary" @(Model.AvailableCount == 0 ? "disabled" : "") />
-            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Browse Books</a>
-            @if (Model.AvailableCount == 0)
-            {
-                <p>No available copies left, please come back later</p>
-            }
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; background-color: #f5f5f5;">
+    <div style="width: 100%; max-width: 600px; background-color: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <h4 class="mb-3" style="text-align: center;">Book Details</h4>
+        <hr />
+        <div style="max-width: 300px; margin: 0 auto 20px;">
+            <label class="form-label fw-bold" style="display: block; text-align: center;">Cover Image</label>
+            <div style="border: 2px solid #007bff; border-radius: 5px; overflow: hidden;">
+                <div style="width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa;">
+                    <img src="@(Model.CoverImageUrl ?? Model.DefaultCoverImageUrl)"
+                         style="max-width: 100%; max-height: 100%; object-fit: scale-down;"
+                         alt="Book Cover">
+                </div>
+            </div>
         </div>
-    </form>
-}
 
+        <div>
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Title:</div>
+                <div style="flex: 1;">@Model.Title</div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Publication Date:</div>
+                <div style="flex: 1;">@Model.PublicationDate.ToString(Globals.DateFormat)</div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Available Count:</div>
+                <div style="flex: 1;">@Model.AvailableCount</div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Total Count:</div>
+                <div style="flex: 1;">@Model.TotalCount</div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Authors:</div>
+                <div style="flex: 1;">@Model.AllAuthorsJoinedString</div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex: 0 0 150px; font-weight: bold;">Genres:</div>
+                <div style="flex: 1;">@Model.AllGenresJoinedString</div>
+            </div>
+        </div>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form asp-controller="BookRentals" asp-action="Rent" style="margin-top: 20px;">
+                <input type="hidden" name="bookId" value="@Model?.Id" />
+
+                <div class="alert alert-info" style="margin-bottom: 15px;">
+                    <p>You can keep the book for <strong>@Globals.BookRentDayLimit days</strong> max.</p>
+                    <p>Return date: <strong>@DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit).ToString(Globals.DateFormat)</strong></p>
+                </div>
+
+                <div class="d-flex flex-column align-items-center">
+                    <input type="submit" value="Rent Book" class="btn btn-primary mb-2" @(Model.AvailableCount == 0 ? "disabled" : "") />
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-2">Browse Books</a>
+                    @if (Model.AvailableCount == 0)
+                    {
+                        <p class="text-danger text-center">No available copies left, please come back later.</p>
+                    }
+                </div>
+            </form>
+        }else{
+            <p class="text-secondary text-center">You need to login to rent books</p>
+        }
+    </div>
+</div>
