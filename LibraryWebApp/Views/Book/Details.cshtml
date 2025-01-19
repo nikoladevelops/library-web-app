@@ -13,8 +13,8 @@
             <div style="border: 2px solid #007bff; border-radius: 5px; overflow: hidden;">
                 <div style="width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa;">
                     <img src="@(Model.CoverImageUrl ?? Model.DefaultCoverImageUrl)"
-                         style="max-width: 100%; max-height: 100%; object-fit: scale-down;"
-                         alt="Book Cover">
+                    style="max-width: 100%; max-height: 100%; object-fit: scale-down;"
+                    alt="Book Cover">
                 </div>
             </div>
         </div>
@@ -67,6 +67,11 @@
                     @if (Model.AvailableCount == 0)
                     {
                         <p class="text-danger text-center">No available copies left, please come back later.</p>
+                    }
+
+                    @if (User.IsInRole(Globals.Roles.Admin)) 
+                    {
+                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning mb-2">Edit Book</a>
                     }
                 </div>
             </form>
