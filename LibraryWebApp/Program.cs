@@ -67,6 +67,9 @@ DataSeeder seeder = new DataSeeder(app.Services);
 await seeder.SeedRoles();
 await seeder.SeedUsers();
 await seeder.SeedBookGenres();
+await seeder.SeedAuthors();
+await seeder.SeedBooks();
+await seeder.SeedRentedBooks();
 
 app.Run();
 
