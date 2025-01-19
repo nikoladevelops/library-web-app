@@ -4,10 +4,10 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Manage Genres</h1>
 
 <p>
-    <a asp-controller="Genre" asp-action="Create" class="btn btn-primary">Add Genre</a>
+    <a asp-controller="Genre" asp-action="Create" class="btn btn-primary mt-2">Create Genre</a>
 </p>
 <table class="table">
     <thead>
@@ -26,7 +26,7 @@
                     @item.Name
                 </td>
                 <td>
-                    <a asp-controller="Genre" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">Edit</a>
+                    <a asp-controller="Genre" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning">Edit</a>
                     <a asp-controller="Genre" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info">Details</a>
                     <a asp-controller="Genre" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">Delete</a>
                 </td>

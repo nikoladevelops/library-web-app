@@ -39,13 +39,6 @@
     </dl>
 </div>
 
-<br />
-
-<div>
-    <a asp-controller="Home" asp-action="Index">Browse Books</a>
-</div>
-
-<br />
 @if (@User.Identity.IsAuthenticated)
 {
     <form asp-controller="BookRentals" asp-action="Rent">
@@ -54,8 +47,9 @@
         <p>You can keep the book for @Globals.BookRentDayLimit days max</p>
         <p>Return date: @DateOnly.FromDateTime(DateTime.Now).AddDays(Globals.BookRentDayLimit).ToString(Globals.DateFormat)</p>
 
-        <div class="form-group" style="margin-top:10px">
+        <div class="form-group mt-2">
             <input type="submit" value="Rent Book" class="btn btn-primary" @(Model.AvailableCount == 0 ? "disabled" : "") />
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Browse Books</a>
             @if (Model.AvailableCount == 0)
             {
                 <p>No available copies left, please come back later</p>

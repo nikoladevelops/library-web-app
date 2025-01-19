@@ -5,7 +5,8 @@
     ViewData["Title"] = "My profile";
     var currentDate = DateOnly.FromDateTime(DateTime.Now);
 }
-<h1>Rented</h1>
+<h1>My Rented Books</h1>
+<p>(Note: All dates are in @Globals.DateFormat format)</p>
 @foreach (var book in Model)
 {
     if (!(book.ReturnedAt.HasValue))

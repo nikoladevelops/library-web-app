@@ -27,25 +27,25 @@
                         </ul>
                         @if (User.Identity.IsAuthenticated)
                         {
-                        <ul class="navbar-nav flex-grow-1">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="BookRentals" asp-action="Details">My Rented Books</a>
+                                </li>
                                 @if (User.IsInRole(Globals.Roles.Admin))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Book" asp-action="Index">Books</a>
+                                        <a class="nav-link text-dark" asp-controller="Book" asp-action="Index">Manage Books</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Author" asp-action="Index">Authors</a>
+                                        <a class="nav-link text-dark" asp-controller="Author" asp-action="Index">Manage Authors</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Genre" asp-action="Index">Genres</a>
+                                        <a class="nav-link text-dark" asp-controller="Genre" asp-action="Index">Manage Genres</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link text-dark" asp-controller="Admin" asp-action="Panel">Admin Panel</a>
                                     </li>
                                 }
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="BookRentals" asp-action="Details">My Library</a>
-                                </li>
                             </ul>
 
 

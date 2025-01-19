@@ -47,7 +47,7 @@
                         @book.TotalCount
                     </td>
                     <td>
-                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-warning">Edit</a>
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
                         <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
                     </td>
@@ -56,5 +56,5 @@
         </tbody>
     </table>
 </div>
-<a asp-controller="Author" asp-action="Edit" asp-route-id="@Model.Author?.Id">Edit</a> |
-<a asp-controller="Author" asp-action="Index">Back to List</a>
+<a asp-controller="Author" asp-action="Edit" asp-route-id="@Model.Author?.Id" class="btn btn-warning">Go To Edit</a>
+<a asp-controller="Author" asp-action="Index" class="btn btn-secondary">Manage Authors</a>
