@@ -50,10 +50,8 @@ namespace LibraryWebApp.Controllers
                 AvailableCount = book.AvailableCount,
                 CoverImageUrl = book.CoverImageUrl,
                 DefaultCoverImageUrl = _bookCoverImageManager.DefaultNoBookCoverImagePath,
-                SelectedAuthorIDs = book.Authors.Select(a => a.Id).ToList(),
-                SelectedGenreIDs = book.Genres.Select(g => g.Id).ToList(),
-                AvailableAuthors = new MultiSelectList(_context.Authors, "Id", "Name"),
-                AvailableGenres = new MultiSelectList(_context.Genres, "Id", "Name"),
+                AllAuthorsJoinedString = string.Join(", ", book.Authors.Select(a => a.Name)),
+                AllGenresJoinedString = string.Join(", ", book.Genres.Select(g => g.Name))
             };
 
             return View(vm);

@@ -23,15 +23,5 @@ namespace LibraryWebApp.ViewModels.BookViewModels
         public string? CoverImageUrl { get; set; }
 
         public string DefaultCoverImageUrl { get; set; }
-
-        [DisplayName("Authors")]
-        public IEnumerable<int> SelectedAuthorIDs { get; set; }
-
-        public MultiSelectList? AvailableAuthors { get; set; }
-
-        [DisplayName("Genres")]
-        public IEnumerable<int> SelectedGenreIDs { get; set; }
-
-        public MultiSelectList? AvailableGenres { get; set; }
     }
 }

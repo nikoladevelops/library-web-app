@@ -4,10 +4,10 @@
     ViewData["Title"] = "Library Catalogue";
 }
 
-<h1>Catalogue</h1>
+<h1>Manage Books</h1>
 
 <p>
-    <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add Book</a>
+    <a asp-controller="Book" asp-action="Create" class="btn btn-primary mt-2">Create Book</a>
 </p>
 
 <table class="table">
@@ -17,7 +17,7 @@
                 <label class="control-label">Title</label>
             </th>
             <th>
-                <label class="control-label">Publication Date<br />(Month/Day/Year)</label>
+                <label class="control-label">Publication Date<br />(@Globals.DateFormat)</label>
             </th>
             <th>
                 <label class="control-label">Available Count</label>
@@ -45,7 +45,7 @@
                     @book.TotalCount
                 </td>
                 <td>
-                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">Edit</a>
+                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-warning">Edit</a>
                     <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-info">Details</a>
                     <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-outline-danger">Delete</a>
                 </td>
