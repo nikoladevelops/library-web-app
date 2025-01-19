@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<RentedBook>
+@{
+    ViewData["Title"] = "My profile";
+    var currentDate = DateOnly.FromDateTime(DateTime.Now);
+}
+<h1>Rented</h1>
+@foreach (var book in Model)
+{
+    if (!(book.ReturnedAt.HasValue))
+    {
+        @if (currentDate >= book.Deadline)
+        {
+            <div class="alert alert-warning">
+                @book.Book.Title - is overdue, no more books can be rented untill It's returned
+            </div>
+        }
+        else if (currentDate.AddDays(Globals.RentDeadlineWarningPeriod) >= book.Deadline)
+        {
+            <div class="alert alert-warning">
+                @book.Book.Title - Is due on @book.Deadline.ToString(Globals.DateFormat)
+            </div>
+        }
+    }
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label class="control-label">Title</label>
+            </th>
+            <th>
+                <label class="control-label">Rented Date</label>
+            </th>
+            <th>
+                <label class="control-label">Deadline</label>
+            </th>
+            <th>
+                <label class="control-label">Returned At</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            var isSoonOverdue = currentDate.AddDays(Globals.RentDeadlineWarningPeriod) >= book.Deadline && !(book.ReturnedAt.HasValue);
+            <tr class="@(isSoonOverdue ? "table-danger" : "")">
+                <td>
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id")>@book.Book.Title</a>
+                </td>
+                <td>
+                    @book.RentalDate.ToString(Globals.DateFormat)
+                </td>
+                <td>
+                    @book.Deadline
+                    @($" {(isSoonOverdue ? $"| {Math.Max(0, (@book.Deadline.DayNumber - @currentDate.DayNumber))} days left!" : "")}")
+                </td>
+                <td>
+                    @if (book.ReturnedAt.HasValue)
+                    {
+                        <p>
+                            @($"{book.ReturnedAt.Value.ToString(Globals.DateFormat)} {(book.ReturnedAt <= book.Deadline ? "✔ Returned on time" : "✘ Returned late")}")
+                        </p>
+                    }
+                    else
+                    {
+                        <form asp-controller="BookRentals" asp-action="Return">
+                            <input type="hidden" name="bookId" value="@book.Id" />
+                            <button type="submit" class="btn btn-primary">@(book.Deadline <= currentDate ? "Return Book Late" : "Return Book")</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+</table>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

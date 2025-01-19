@@ -1,8 +1,10 @@
 ﻿using LibraryWebApp.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
+using static LibraryWebApp.Globals;
 
 namespace LibraryWebApp.Helpers
 {
@@ -11,24 +13,30 @@ namespace LibraryWebApp.Helpers
     /// </summary>
     public class DataSeeder
     {
-        private string[] roles = { "User", "Admin" };
+        private readonly IServiceProvider _serviceProvider;
+        public DataSeeder(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         /// <summary>
-        /// Seeds roles into the database. If they already exists, it does nothing.
+        /// Seeds roles into the database. If they already exist, it does nothing.
         /// </summary>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        public async Task SeedRoles(IServiceProvider serviceProvider) 
+        public async Task SeedRoles() 
         {
-            using (var scope = serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 // If even the first role exists, we assume that all roles exist and abort
-                if (await roleManager.RoleExistsAsync(roles[0]))
+                if (await roleManager.RoleExistsAsync(Roles.User))
                 {
                     return;
                 }
+
+                var roles = Enum.GetNames(typeof(AllRoles));
 
                 foreach (var role in roles)
                 {
@@ -38,15 +46,15 @@ namespace LibraryWebApp.Helpers
         }
 
         /// <summary>
-        /// Seeds users into the database. If they already exists, it does nothing
+        /// Seeds users into the database. If they already exist, it does nothing
         /// </summary>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        public async Task SeedUsers(IServiceProvider serviceProvider)
+        public async Task SeedUsers()
         {
             // Seed a normal user
-            bool success = await SeedSingleUser("user", "user@gmail.com", "uuuuuuU!1", roles[0], serviceProvider);
-
+            bool success = await SeedSingleUser("user", "user@gmail.com", "uuuuuuU!1", AllRoles.User);
+            
             // Abort if the user was not seeded successfully
             if (success == false)
             {
@@ -54,7 +62,54 @@ namespace LibraryWebApp.Helpers
             }
 
             // Seed an admin user
-            await SeedSingleUser("admin", "admin@gmail.com", "aaaaaaA!1", roles[1], serviceProvider);
+            await SeedSingleUser("admin", "admin@gmail.com", "aaaaaaA!1", AllRoles.Admin);
+        }
+
+        /// <summary>
+        /// Seeds book genres into the database, but only if there are no genres already in the database.
+        /// </summary>
+        public async Task SeedBookGenres() 
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                string[] genresToSeed =
+                {
+                    "ActionAndAdventure",
+                    "Classics",
+                    "ComicAndGraphicNovel",
+                    "CrimeAndMystery",
+                    "Drama",
+                    "Fantasy",
+                    "HistoricalFiction",
+                    "Horror",
+                    "LiteraryFiction",
+                    "NonFiction",
+                    "Romance",
+                    "ScienceFiction",
+                    "ThrillerAndSuspense",
+                    "BiographyAndMemoir",
+                    "Poetry"
+                };
+
+                var hasSeededGenresAlready = await context.Genres.AnyAsync();
+
+                if (hasSeededGenresAlready)
+                {
+                    return;
+                }
+
+                foreach (var genreName in genresToSeed)
+                {
+                    if (!context.Genres.Any(g => g.Name == genreName))
+                    {
+                        context.Genres.Add(new Genre { Name = genreName });
+                    }
+                }
+
+                await context.SaveChangesAsync();
+            }
         }
 
         /// <summary>
@@ -66,14 +121,20 @@ namespace LibraryWebApp.Helpers
         /// <param name="role"></param>
         /// <param name="serviceProvider"></param>
         /// <returns>Whether the user was seeded successfully</returns>
-        private async Task<bool> SeedSingleUser(string username, string email, string password, string role, IServiceProvider serviceProvider) 
+        private async Task<bool> SeedSingleUser(string username, string email, string password, AllRoles role) 
         {
-            using (var scope = serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-                // If user already exists, we abort
+                // If user with this email already exists, abort
                 if (await userManager.FindByEmailAsync(email) != null)
+                {
+                    return false;
+                }
+
+                // If user with this username already exists, abort
+                if (await userManager.FindByNameAsync(username) != null)
                 {
                     return false;
                 }
@@ -88,7 +149,7 @@ namespace LibraryWebApp.Helpers
 
                 if (createUserResult.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(user, role);
+                    await userManager.AddToRoleAsync(user, role.ToString());
                 }
             }
 

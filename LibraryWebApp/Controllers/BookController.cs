@@ -22,6 +22,7 @@ namespace LibraryWebApp.Controllers
             _bookCoverImageManager = imageSaver;
         }
 
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Index()
         {
             List<Book> allBooks = await _context.Books.ToListAsync();
@@ -58,6 +59,8 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
+
+        [Authorize(Roles = Globals.Roles.Admin)]
         public IActionResult Create()
         {
             var vm = new BookCreateVM
@@ -70,6 +73,7 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreateVM vm, IFormFile? coverImage)
@@ -107,6 +111,8 @@ namespace LibraryWebApp.Controllers
             
             return View(vm);
         }
+
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Edit(int id)
         {
             var book = await _context.Books
@@ -135,6 +141,8 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
+
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(BookEditVM vm, IFormFile? coverImage)
@@ -155,6 +163,7 @@ namespace LibraryWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+
                 bookInDb.Title = vm.Title;
                 bookInDb.TotalCount = vm.TotalCount;
                 bookInDb.AvailableCount = vm.AvailableCount;
@@ -162,6 +171,9 @@ namespace LibraryWebApp.Controllers
 
                 // Always delete old cover image if it exists
                 if (!string.IsNullOrEmpty(bookInDb.CoverImageUrl))
+
+                // If the book had a cover image already saved in the database, delete it
+                if (bookInDb.CoverImageUrl != null)
                 {
                     _bookCoverImageManager.DeleteBookCoverImage(bookInDb.CoverImageUrl);
                 }
@@ -192,6 +204,8 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
+
+        [Authorize(Roles = Globals.Roles.Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             var book = await _context.Books
@@ -222,6 +236,8 @@ namespace LibraryWebApp.Controllers
             return View(vm);
         }
 
+
+        [Authorize(Roles = Globals.Roles.Admin)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePOST(int id)

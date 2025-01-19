@@ -9,15 +9,23 @@ namespace LibraryWebApp.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
-        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> um)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
+
+        public AccountController( SignInManager<ApplicationUser> signIn, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
-            signInManager = signIn;
-            userManager = um;
+            _signInManager = signIn;
+            _userManager = userManager;
+            _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        public IActionResult Login()
         {
             return View();
         }
@@ -28,20 +36,16 @@ namespace LibraryWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var res = await signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+                var res = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
 
                 if (res.Succeeded)
                 {
                     return RedirectToAction("Index", "Home");
                 }
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Login));
         }
 
-        public IActionResult Register()
-        {
-            return View();
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM registerViewModel)
@@ -49,7 +53,7 @@ namespace LibraryWebApp.Controllers
             if (ModelState.IsValid)
             {
                 // Check if there is already a user with this username
-                var existingUserByUsername = await userManager.FindByNameAsync(registerViewModel.Username);
+                var existingUserByUsername = await _userManager.FindByNameAsync(registerViewModel.Username);
                 if (existingUserByUsername != null)
                 {
                     ModelState.AddModelError("Username", "A user with this username already exists.");
@@ -57,7 +61,7 @@ namespace LibraryWebApp.Controllers
                 }
 
                 // Check if there is already a user with this email
-                var existingUserByEmail = await userManager.FindByEmailAsync(registerViewModel.Email);
+                var existingUserByEmail = await _userManager.FindByEmailAsync(registerViewModel.Email);
                 if (existingUserByEmail != null)
                 {
                     ModelState.AddModelError("Email", "A user with this email address already exists.");
@@ -71,12 +75,12 @@ namespace LibraryWebApp.Controllers
                     Email = registerViewModel.Email
                 };
 
-                var result = await userManager.CreateAsync(user, registerViewModel.Password);
-                await userManager.AddToRoleAsync(user, "User");
+                var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+                await _userManager.AddToRoleAsync(user, "User");
 
                 if (result.Succeeded)
                 {
-                    await signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
+                    await _signInManager.PasswordSignInAsync(user.UserName, registerViewModel.Password, false, false);
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -90,10 +94,13 @@ namespace LibraryWebApp.Controllers
             return View(registerViewModel);
         }
 
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
-            return RedirectToAction(nameof(Index)); ;
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
