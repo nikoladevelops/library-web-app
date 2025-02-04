@@ -3,9 +3,27 @@
 @model IEnumerable<RentedBook>
 @{
     ViewData["Title"] = "My profile";
+    var currentDate = DateOnly.FromDateTime(DateTime.Now);
 }
 <h1>Rented</h1>
-
+@foreach (var book in Model)
+{
+    if (!(book.ReturnedAt.HasValue))
+    {
+        @if (currentDate >= book.Deadline)
+        {
+            <div class="alert alert-warning">
+                @book.Book.Title - is overdue, no more books can be rented untill It's returned
+            </div>
+        }
+        else if (currentDate.AddDays(Globals.RentDeadlineWarningPeriod) >= book.Deadline)
+        {
+            <div class="alert alert-warning">
+                @book.Book.Title - Is due on @book.Deadline.ToString(Globals.DateFormat)
+            </div>
+        }
+    }
+}
 <table class="table">
     <thead>
         <tr>
@@ -21,13 +39,13 @@
             <th>
                 <label class="control-label">Returned At</label>
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var book in Model)
         {
-            <tr>
+            var isSoonOverdue = currentDate.AddDays(Globals.RentDeadlineWarningPeriod) >= book.Deadline && !(book.ReturnedAt.HasValue);
+            <tr class="@(isSoonOverdue ? "table-danger" : "")">
                 <td>
                     @book.Book.Title
                 </td>
@@ -36,6 +54,7 @@
                 </td>
                 <td>
                     @book.Deadline
+                    @($" {(isSoonOverdue ? $"| {Math.Max(0, (@book.Deadline.DayNumber - @currentDate.DayNumber))} days left!" : "")}")
                 </td>
                 <td>
                     @if (book.ReturnedAt.HasValue)
@@ -48,13 +67,12 @@
                     {
                         <form asp-controller="BookRentals" asp-action="Return">
                             <input type="hidden" name="bookId" value="@book.Id" />
-                            <button type="submit" class="btn btn-primary">@(book.Deadline <= DateOnly.FromDateTime(DateTime.Now) ? "Return Book Late" : "Return Book")</button>
+                            <button type="submit" class="btn btn-primary">@(book.Deadline <= currentDate ? "Return Book Late" : "Return Book")</button>
                         </form>
                     }
                 </td>
             </tr>
         }
-    </tbody>
 </table>
 
 @section Scripts {

@@ -6,6 +6,8 @@
     public static class Globals
     {
         public static int BookRentDayLimit { get => 14; }
-        public static string DateFormat { get => "MM/dd/yyyy"; }
+        public static string DateFormat { get => "dd/MM/yyyy"; }
+        public static int RentDeadlineWarningPeriod { get => 3; }
+
     }
 }
